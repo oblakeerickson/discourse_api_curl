@@ -11,7 +11,7 @@ end
 case command
 when 'category-create'
   c = <<~HERDOC
-    curl -i -S -X POST "http://127.0.0.1:3000/categories" \
+    curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
     -H "Content-Type: multipart/form-data;" \
     -F "api_key=#{api_key}" \
     -F "api_username=#{api_username}" \
@@ -26,7 +26,7 @@ when 'category-create'
 when 'user-create'
   name = SecureRandom.hex[0..19]
   c = <<~HERDOC
-    curl -i -S -X POST "http://127.0.0.1:3000/users" \
+    curl -i -sS -X POST "http://127.0.0.1:3000/users" \
     -H "Content-Type: multipart/form-data;" \
     -F "api_key=#{api_key}" \
     -F "api_username=#{api_username}" \
@@ -41,10 +41,23 @@ when 'user-create'
 when 'user-activate'
   user_id = ARGV[1]
   c = <<~HERDOC
-    curl -i -S -X PUT "http://127.0.0.1:3000/admin/users/#{user_id}/activate.json" \
+    curl -i -sS -X PUT "http://127.0.0.1:3000/admin/users/#{user_id}/activate.json" \
     -H "Content-Type: multipart/form-data;" \
     -F "api_key=#{api_key}" \
     -F "api_username=#{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'user-change-username'
+  username = ARGV[1]
+  new_username = ARGV[2]
+  c = <<~HERDOC
+    curl -i -sS -X PUT "http://127.0.0.1:3000/u/#{username}/preferences/username.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -F "api_key=#{api_key}" \
+    -F "api_username=#{api_username}" \
+    -F "new_username=#{new_username}"
   HERDOC
   puts c
   puts
@@ -54,7 +67,7 @@ when 'group-add-members'
   group_id = ARGV[1]
   usernames = ARGV[2] #comma separated
   c = <<~HERDOC
-    curl -i -S -X PUT "http://127.0.0.1:3000/groups/#{group_id}/members.json" \
+    curl -i -sS -X PUT "http://127.0.0.1:3000/groups/#{group_id}/members.json" \
     -H "Content-Type: multipart/form-data;" \
     -F "api_key=#{api_key}" \
     -F "api_username=#{api_username}" \
