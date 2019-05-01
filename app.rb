@@ -1,9 +1,13 @@
 require 'securerandom'
 require 'json'
+require 'yaml'
 
-api_key = '7aa202bec1ff70563bc0a3d102feac0a7dd2af96b5b772a9feaf27485f9d31a2'
-api_username = 'system'
-HOST = 'http://127.0.0.1:3000'
+@config = YAML.load_file('config.yml')
+
+api_key = @config['api_key']
+api_username = @config['api_username']
+
+HOST = @config['host']
 
 command = ARGV[0]
 if !command
@@ -15,8 +19,37 @@ when 'category-create'
   c = <<~HERDOC
     curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "name=#{SecureRandom.hex}" \
+    -F "color=49d9e9" \
+    -F "text_color=f0fcfd" \
+    -F "permissions[foobar]=1"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'category-create2'
+  c = <<~HERDOC
+    curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
     -F "api_username=#{api_username}" \
+    -F "name=#{SecureRandom.hex}" \
+    -F "color=49d9e9" \
+    -F "text_color=f0fcfd" \
+    -F "permissions[foobar]=1"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'category-create3'
+  api_username = "steve"
+  c = <<~HERDOC
+    curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "name=#{SecureRandom.hex}" \
     -F "color=49d9e9" \
     -F "text_color=f0fcfd" \
@@ -66,7 +99,7 @@ when 'user-change-username'
   puts `#{c}`
 when 'group-create'
   # Example: ruby app.rb group-create name
-  group_name = ARGV[1]
+  group_name = ARGV[1] || SecureRandom.hex[0..19]
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/admin/groups" \
     -H "Content-Type: multipart/form-data;" \
@@ -153,6 +186,19 @@ when 'update-site-setting'
   puts c
   puts
   puts `#{c}`
+when 'get-site-settings'
+  # Example: ruby app.rb get-site-settings
+  name = ARGV[1]
+  value = ARGV[2]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/admin/site_settings.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'directory-items'
   # Example: ruby app.rb directory-items
   c = <<~HERDOC
@@ -181,5 +227,78 @@ when 'timed-topic-create'
   puts c
   puts
   puts `#{c}`
+when 'notifications'
+  # Example: ruby app.rb notifications username
+  username = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/notifications.json?username=#{username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'notifications-mark-read'
+  # Example: ruby app.rb notifications-mark-read id username
+  id = ARGV[1]
+  api_username = ARGV[2]
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/notifications/mark-read" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "id=#{id}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-pm'
+  # Example: ruby app.rb create-pm title target_usernames raw
+  title = ARGV[1]
+  target_usernames = ARGV[2]
+  raw = ARGV[3]
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "title=#{title}" \
+    -F "target_usernames=#{target_usernames}" \
+    -F "raw=#{raw}" \
+    -F "archetype=private_message"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'upload-avatar'
+  user_id = ARGV[1]
+  file = ARGV[2]
+  type = "avatar"
+  synchronous = true
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/uploads.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "files[]=#{file}" \
+    -F "type=#{type}" \
+    -F "user_id=#{user_id}" \
+    -F "synchronous=true"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-topic'
+  # Example: ruby app.rb create-topic title category_id raw
+  category_id = ARGV[1]
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "title=#{title}" \
+    -F "category='#{category_id}'" \
+    -F "raw=#{raw}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 end
-
