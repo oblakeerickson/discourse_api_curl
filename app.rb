@@ -3,11 +3,12 @@ require 'json'
 require 'yaml'
 
 @config = YAML.load_file('config.yml')
+site = ENV['SITE']
 
-api_key = @config['api_key']
-api_username = @config['api_username']
+api_key = @config[site]['api_key']
+api_username = @config[site]['api_username']
 
-HOST = @config['host']
+HOST = @config[site]['host']
 
 command = ARGV[0]
 if !command
@@ -34,21 +35,6 @@ when 'category-create2'
     curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
     -H "Content-Type: multipart/form-data;" \
     -H "Api-Key: #{api_key}" \
-    -F "api_username=#{api_username}" \
-    -F "name=#{SecureRandom.hex}" \
-    -F "color=49d9e9" \
-    -F "text_color=f0fcfd" \
-    -F "permissions[foobar]=1"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
-when 'category-create3'
-  api_username = "steve"
-  c = <<~HERDOC
-    curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "name=#{SecureRandom.hex}" \
     -F "color=49d9e9" \
@@ -59,15 +45,16 @@ when 'category-create3'
   puts
   puts `#{c}`
 when 'user-create'
-  name = SecureRandom.hex[0..19]
+  name = ARGV[1] || SecureRandom.hex[0..19]
+  email = ARGV[2] || "#{name}@example.com"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/users" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "name=#{name}" \
     -F "username=#{name}" \
-    -F "email=#{name}@example.com" \
+    -F "email=#{email}" \
     -F "password=#{SecureRandom.hex}"
   HERDOC
   puts c
@@ -78,21 +65,55 @@ when 'user-activate'
   c = <<~HERDOC
     curl -i -sS -X PUT "#{HOST}/admin/users/#{user_id}/activate.json" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}"
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
   HERDOC
   puts c
   puts
   puts `#{c}`
-when 'user-change-username'
+when 'user-update-username'
   username = ARGV[1]
   new_username = ARGV[2]
   c = <<~HERDOC
     curl -i -sS -X PUT "http://127.0.0.1:3000/u/#{username}/preferences/username.json" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "new_username=#{new_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'user-update-trust-level'
+  user_id = ARGV[1]
+  trust_level = ARGV[2]
+  c = <<~HERDOC
+    curl -i -sS -X PUT "http://127.0.0.1:3000/admin/users/#{user_id}/trust_level.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "level=#{trust_level}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'user-update'
+  # Example: ruby app.rb user-update name title
+  username = ARGV[1]
+  name = ARGV[2]
+  title = ARGV[3]
+  bio_raw = ARGV[4]
+  # website
+  # location
+  # profile_background
+  # card_background
+  c = <<~HERDOC
+    curl -i -sS -X PUT "http://127.0.0.1:3000/u/#{username}.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "name=#{name}" \
+    -F "title=#{title}"
   HERDOC
   puts c
   puts
@@ -103,8 +124,8 @@ when 'group-create'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/admin/groups" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "group[name]=#{group_name}"
   HERDOC
   puts c
@@ -117,8 +138,8 @@ when 'group-add-members-ids'
   c = <<~HERDOC
     curl -i -sS -X PUT "#{HOST}/groups/#{group_id}/members.json" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "user_ids=#{user_ids}"
   HERDOC
   puts c
@@ -131,8 +152,8 @@ when 'group-add-members'
   c = <<~HERDOC
     curl -i -sS -X PUT "#{HOST}/groups/#{group_id}/members.json" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "usernames=#{usernames}"
   HERDOC
   puts c
@@ -145,29 +166,9 @@ when 'group-remove-member'
   c = <<~HERDOC
     curl -i -sS -X DELETE "#{HOST}/groups/#{group_id}/members.json" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "user_id=#{user_id}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
-when 'group-remove-member-json'
-  # This case should fail
-  # Example: ruby app.rb group-remove-member 41 3
-  group_id = ARGV[1]
-  user_id = ARGV[2]
-  data = {
-    api_key: api_key,
-    api_username: api_username,
-    user_id: user_id
-  }
-  json = data.to_json
-  json = '{"api_key":"7aa202bec1ff70563bc0a3d102feac0a7dd2af96b5b772a9feaf27485f9d31a2","api_username":"system","user_id":"2"}'
-  c = <<~HERDOC
-    curl -i -sS -X DELETE "#{HOST}/groups/#{group_id}/members.json?api_key=#{api_key}&api_username=#{api_username}" \
-    -H "Content-Type: application/json;" \
-    -d '{"user_ids":2}'
   HERDOC
   puts c
   puts
@@ -179,8 +180,8 @@ when 'update-site-setting'
   c = <<~HERDOC
     curl -i -sS -X PUT "http://127.0.0.1:3000/admin/site_settings/#{name}" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "#{name}=#{value}"
   HERDOC
   puts c
@@ -202,9 +203,9 @@ when 'get-site-settings'
 when 'directory-items'
   # Example: ruby app.rb directory-items
   c = <<~HERDOC
-    curl -i -sS -X GET "http://127.0.0.1:3000/directory_items.json?period=weekly&order=likes_received&_=1542406962418" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}"
+    curl -i -sS -X GET "http://127.0.0.1:3000/directory_items.json?period=weekly&order=likes_received" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
   HERDOC
   puts c
   puts
@@ -218,8 +219,8 @@ when 'timed-topic-create'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/t/#{topic_id}/timer" \
     -H "Content-Type: multipart/form-data;" \
-    -F "api_key=#{api_key}" \
-    -F "api_username=#{api_username}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
     -F "time=#{time}" \
     -F "status_type=#{status_type}" \
     -F "category_id=#{category_id}"
@@ -285,7 +286,7 @@ when 'upload-avatar'
   puts c
   puts
   puts `#{c}`
-when 'create-topic'
+when 'create-topic-in-category'
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]
   title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
@@ -295,8 +296,86 @@ when 'create-topic'
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "title=#{title}" \
-    -F "category='#{category_id}'" \
+    -F "category=#{category_id}" \
     -F "raw=#{raw}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-topic'
+  # Example: ruby app.rb create-topic title raw
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "title=#{title}" \
+    -F "raw=#{raw}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-topic-json'
+  # Example: ruby app.rb create-topic title category_id raw
+  category_id = ARGV[1]
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  data = {title: title, category: category_id, raw: raw}.to_json
+  puts data
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Content-Type: application/json;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -d "'#{data}'"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-whisper'
+  # Example: ruby app.rb create-whisper topic_id
+  topic_id = ARGV[1]
+  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "raw=#{raw}" \
+    -F "topic_id=#{topic_id}" \
+    -F "whisper=true"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-post'
+  # Example: ruby app.rb create-post topic_id
+  topic_id = ARGV[1]
+  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "raw=#{raw}" \
+    -F "topic_id=#{topic_id}" \
+    -F "no_bump=true"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-shared-draft'
+  # Example: ruby app.rb create-topic title category_id raw
+  category_id = ARGV[1]
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "title=#{title}" \
+    -F "category=#{category_id}" \
+    -F "raw=#{raw}" \
+    -F "shared_draft=true"
   HERDOC
   puts c
   puts
