@@ -5,6 +5,11 @@ require 'yaml'
 @config = YAML.load_file('config.yml')
 site = ENV['SITE']
 
+if !site
+  puts "Please specify a site"
+  exit
+end
+
 api_key = @config[site]['api_key']
 api_username = @config[site]['api_username']
 
@@ -12,6 +17,7 @@ HOST = @config[site]['host']
 
 command = ARGV[0]
 if !command
+  puts "Please specify a command"
   exit
 end
 
