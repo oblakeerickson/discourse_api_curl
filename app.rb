@@ -2,7 +2,7 @@ require 'securerandom'
 require 'json'
 require 'yaml'
 
-@config = YAML.load_file('config.yml')
+@config = YAML.load_file(File.join(__dir__, 'config.yml'))
 site = ENV['SITE']
 
 if !site
@@ -24,14 +24,13 @@ end
 case command
 when 'category-create'
   c = <<~HERDOC
-    curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
+    curl -i -sS -X POST "#{HOST}/categories" \
     -H "Content-Type: multipart/form-data;" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "name=#{SecureRandom.hex}" \
     -F "color=49d9e9" \
-    -F "text_color=f0fcfd" \
-    -F "permissions[foobar]=1"
+    -F "text_color=f0fcfd"
   HERDOC
   puts c
   puts
@@ -61,11 +60,16 @@ when 'user-create'
     -F "name=#{name}" \
     -F "username=#{name}" \
     -F "email=#{email}" \
-    -F "password=#{SecureRandom.hex}"
+    -F "password=#{SecureRandom.hex}" \
+    -F "user_fields[1]=#{name}" \
+    -F "user_fields[2]=#{SecureRandom.hex[0..10]}"
   HERDOC
   puts c
   puts
-  puts `#{c}`
+  response = `#{c}`
+  user_id = response.split('user_id')
+  id = user_id[1].split(':')[1].split('}')[0]
+  puts `ruby app.rb user-activate #{id}`
 when 'user-activate'
   user_id = ARGV[1]
   c = <<~HERDOC
@@ -238,9 +242,9 @@ when 'notifications'
   # Example: ruby app.rb notifications username
   username = ARGV[1]
   c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/notifications.json?username=#{username}" \
+    curl -s -X GET "#{HOST}/notifications.json?username=#{username}" \
     -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}"
+    -H "Api-Username: #{api_username}" | jq .
   HERDOC
   puts c
   puts
@@ -250,19 +254,52 @@ when 'notifications-mark-read'
   id = ARGV[1]
   api_username = ARGV[2]
   c = <<~HERDOC
-    curl -i -sS -X PUT "#{HOST}/notifications/mark-read" \
+    curl -s -X PUT "#{HOST}/notifications/mark-read" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
-    -F "id=#{id}"
+    -F "id=#{id}" | jq .
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'notifications-mark-all-read'
+  # Example: ruby app.rb notifications-mark-all-read username
+  api_username = ARGV[1]
+  c = <<~HERDOC
+    curl -s -X PUT "#{HOST}/notifications/mark-read" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" | jq .
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'unread-notifications'
+  # Example: ruby app.rb unread-notifications username
+  api_username = ARGV[1]
+  c = <<~HERDOC
+    curl -s -X GET "#{HOST}/session/current.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" | jq .
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'unread'
+  # Example: ruby app.rb unread username
+  api_username = ARGV[1]
+  c = <<~HERDOC
+    curl -s -X GET "#{HOST}/unread.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" | jq .
   HERDOC
   puts c
   puts
   puts `#{c}`
 when 'create-pm'
-  # Example: ruby app.rb create-pm title target_usernames raw
-  title = ARGV[1]
-  target_usernames = ARGV[2]
-  raw = ARGV[3]
+  # Example: ruby app.rb create-pm target_usernames title raw
+  target_usernames = ARGV[1]
+  title = ARGV[2] || SecureRandom.hex[0..19]
+  raw = ARGV[3] || "#{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]}"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
     -H "Api-Key: #{api_key}" \
@@ -297,7 +334,12 @@ when 'create-topic-in-category'
   category_id = ARGV[1]
   title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  c = <<~HERDOC
+  tag_data = []
+  tags_arg = ARGV[4].split(',')
+  tags_arg.each do |tag|
+    tag_data << "-F 'tags[]=#{tag}' "
+  end
+  c = <<~HERDOC.chomp
     curl -i -sS -X POST "#{HOST}/posts.json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
@@ -305,6 +347,9 @@ when 'create-topic-in-category'
     -F "category=#{category_id}" \
     -F "raw=#{raw}"
   HERDOC
+  tag_data.each do |tag|
+    c = c + " " + tag
+  end
   puts c
   puts
   puts `#{c}`
@@ -324,17 +369,17 @@ when 'create-topic'
   puts `#{c}`
 when 'create-topic-json'
   # Example: ruby app.rb create-topic title category_id raw
-  category_id = ARGV[1]
+  category_id = ARGV[1] || "3"
   title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  data = {title: title, category: category_id, raw: raw}.to_json
+  data = "{\\\"title\\\": \\\"#{title}\\\", \\\"category\\\": \\\"#{category_id}\\\", \\\"raw\\\": \\\"#{raw}\\\"}"
   puts data
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
-    -H "Content-Type: application/json;" \
+    -H "Content-Type: application/json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
-    -d "'#{data}'"
+    -d "#{data}"
   HERDOC
   puts c
   puts
@@ -369,6 +414,29 @@ when 'create-post'
   puts c
   puts
   puts `#{c}`
+when 'change-owner'
+  # Example: ruby app.rb change-owner topic_id username 1,2,3,4,5
+  topic_id = ARGV[1]
+  username = ARGV[2]
+  post_ids = ARGV[3]
+  post_ids_arr = post_ids.split(',')
+  form_data = ""
+  post_ids_arr.each do |id|
+    form_data << "-F 'post_ids[]=#{id}' "
+  end
+  puts form_data
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/t/#{topic_id}/change-owner.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "username=#{username}" \
+    -F "post_ids[]=#{post_ids_arr[0]}" \
+    -F "post_ids[]=#{post_ids_arr[1]}"
+  HERDOC
+  #c << form_data
+  puts c
+  puts
+  puts `#{c}`
 when 'create-shared-draft'
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]
@@ -382,6 +450,18 @@ when 'create-shared-draft'
     -F "category=#{category_id}" \
     -F "raw=#{raw}" \
     -F "shared_draft=true"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'search'
+  # Example: ruby app.rb get-site-settings
+  query = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/search?q=#{query}" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
   HERDOC
   puts c
   puts
