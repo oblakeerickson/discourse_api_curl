@@ -22,6 +22,23 @@ if !command
 end
 
 case command
+when 'mail-receiver'
+  # Example: ruby app.rb query-param-creds-test
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/admin/email/handle_mail?api_key=#{api_key}&api_username=#{api_username}" \
+    -F "email=test@example.com"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'query-param-creds-test'
+  # Example: ruby app.rb query-param-creds-test
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/admin/site_settings.json?api_key=#{api_key}&api_username=#{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'category-create'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \
