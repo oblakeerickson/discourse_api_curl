@@ -158,6 +158,20 @@ when 'group-create'
   puts c
   puts
   puts `#{c}`
+when 'group-update'
+  # Example: ruby app.rb group-create name
+  id = ARGV[1]
+  group_name = ARGV[2] || SecureRandom.hex[0..19]
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/groups/#{id}.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "group[name]=#{group_name}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'group-add-members-ids'
   # Example: ruby app.rb group-add-members_ids 41 2,3
   group_id = ARGV[1]
@@ -350,7 +364,11 @@ when 'create-topic-in-category'
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]
   title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
-  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  if ARGV[3] == nil || ARGV[3] == "" || ARGV[3].length == 0
+    raw = "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  else
+    raw = ARGV[3]
+  end
   tag_data = []
   tags_arg = ARGV[4].split(',')
   tags_arg.each do |tag|
