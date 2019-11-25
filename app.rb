@@ -78,6 +78,7 @@ when 'user-create'
     -F "username=#{name}" \
     -F "email=#{email}" \
     -F "password=#{SecureRandom.hex}" \
+    -F "active=true" \
     -F "user_fields[1]=#{name}" \
     -F "user_fields[2]=#{SecureRandom.hex[0..10]}"
   HERDOC
@@ -86,7 +87,19 @@ when 'user-create'
   response = `#{c}`
   user_id = response.split('user_id')
   id = user_id[1].split(':')[1].split('}')[0]
+  puts `ruby app.rb user-deactivate #{id}`
   puts `ruby app.rb user-activate #{id}`
+when 'user-deactivate'
+  user_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/admin/users/#{user_id}/deactivate.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'user-activate'
   user_id = ARGV[1]
   c = <<~HERDOC
