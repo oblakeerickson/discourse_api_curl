@@ -22,10 +22,25 @@ if !command
 end
 
 case command
-when 'mail-receiver'
-  # Example: ruby app.rb query-param-creds-test
+when 'api-key-create'
+  username = ARGV[1]
+  description = ARGV[2] || SecureRandom.hex[0..19]
+  # Example: ruby app.rb api-key-create username
   c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/admin/email/handle_mail?api_key=#{api_key}&api_username=#{api_username}" \
+    curl -i -sS -X POST "#{HOST}/admin/api/keys" \
+    -H "Content-Type: application/json;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "key[username]=#{username}" \
+    -F "key[description]=#{description}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'mail-receiver'
+  # Example: ruby app.rb mail-receiver
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/admin/email/handle_mail.json?api_key=#{api_key}&api_username=#{api_username}" \
     -F "email=test@example.com"
   HERDOC
   puts c
@@ -34,7 +49,15 @@ when 'mail-receiver'
 when 'query-param-creds-test'
   # Example: ruby app.rb query-param-creds-test
   c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/admin/site_settings.json?api_key=#{api_key}&api_username=#{api_username}"
+    curl -i -sS -X GET "#{HOST}/admin/users/list/active.json?api_key=#{api_key}&api_username=#{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'category-rss'
+  # Example: ruby app.rb category-rss
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/c/lounge/4.rss?api_key=#{api_key}&api_username=#{api_username}"
   HERDOC
   puts c
   puts
@@ -54,7 +77,7 @@ when 'category-create'
   puts `#{c}`
 when 'category-create2'
   c = <<~HERDOC
-    curl -i -sS -X POST "http://127.0.0.1:3000/categories" \
+    curl -i -sS -X POST "#{HOST}/categories" \
     -H "Content-Type: multipart/form-data;" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
@@ -383,10 +406,10 @@ when 'create-topic-in-category'
     raw = ARGV[3]
   end
   tag_data = []
-  tags_arg = ARGV[4].split(',')
-  tags_arg.each do |tag|
-    tag_data << "-F 'tags[]=#{tag}' "
-  end
+  #tags_arg = ARGV[4]&.split(',')
+  #tags_arg.each do |tag|
+  #  tag_data << "-F 'tags[]=#{tag}' "
+  #end
   c = <<~HERDOC.chomp
     curl -i -sS -X POST "#{HOST}/posts.json" \
     -H "Api-Key: #{api_key}" \
@@ -395,9 +418,9 @@ when 'create-topic-in-category'
     -F "category=#{category_id}" \
     -F "raw=#{raw}"
   HERDOC
-  tag_data.each do |tag|
-    c = c + " " + tag
-  end
+  #tag_data.each do |tag|
+  #  c = c + " " + tag
+  #end
   puts c
   puts
   puts `#{c}`
