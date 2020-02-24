@@ -39,9 +39,12 @@ when 'api-key-create'
   puts `#{c}`
 when 'mail-receiver'
   # Example: ruby app.rb mail-receiver
+  email = File.read("/home/blake/tmp/email.txt")
   c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/admin/email/handle_mail.json?api_key=#{api_key}&api_username=#{api_username}" \
-    -F "email=test@example.com"
+    curl -i -sS -X POST "#{HOST}/admin/email/handle_mail" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "email=#{email}"
   HERDOC
   puts c
   puts
