@@ -57,6 +57,14 @@ when 'query-param-creds-test'
   puts c
   puts
   puts `#{c}`
+when 'query-param-creds-test-bad-url'
+  # Example: ruby app.rb query-param-creds-test
+  c = <<~HERDOC
+    curl -i -sS -D - -X GET "#{HOST}/bad-url.json?api_key=#{api_key}&api_username=#{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'category-rss'
   # Example: ruby app.rb category-rss
   c = <<~HERDOC
@@ -98,8 +106,8 @@ when 'user-create'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/users" \
     -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
+    -H "API-KEY: #{api_key}" \
+    -H "Api-UsErnamE: #{api_username}" \
     -F "name=#{name}" \
     -F "username=#{name}" \
     -F "email=#{email}" \
@@ -110,7 +118,7 @@ when 'user-create'
   HERDOC
   puts c
   puts
-  response = `#{c}`
+  puts response = `#{c}`
   user_id = response.split('user_id')
   id = user_id[1].split(':')[1].split('}')[0]
   puts `ruby app.rb user-deactivate #{id}`
@@ -235,6 +243,34 @@ when 'group-add-members'
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "usernames=#{usernames}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'group-add-members-via-admin'
+  # Example: ruby app.rb group-add-members-via-admin 41 asdf,fdsg
+  group_id = ARGV[1]
+  usernames = ARGV[2] #comma separated
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/admin/groups/#{group_id}/members.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "usernames=#{usernames}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'group-add-owners'
+  # Example: ruby app.rb group-add-members 41 asdf,fdsg
+  group_id = ARGV[1]
+  usernames = ARGV[2] #comma separated
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/admin/groups/#{group_id}/owners.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "group[usernames]=#{usernames}"
   HERDOC
   puts c
   puts
@@ -488,6 +524,21 @@ when 'create-post'
   puts c
   puts
   puts `#{c}`
+when 'update-post'
+  # Example: ruby app.rb update-post post_id
+  post_id = ARGV[1]
+  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  raw = "\u{1f4a9}"
+  raw = "\u{0000}"
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/posts/#{post_id}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "post=#{raw}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'change-owner'
   # Example: ruby app.rb change-owner topic_id username 1,2,3,4,5
   topic_id = ARGV[1]
@@ -533,6 +584,34 @@ when 'search'
   query = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/search?q=#{query}" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'canned-replies-anonymous'
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/canned_replies"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'canned-replies'
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/canned_replies" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'canned-replies-delete-as-user'
+  id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X DELETE "#{HOST}/canned_replies/#{id}" \
     -H "Content-Type: multipart/form-data;" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}"
