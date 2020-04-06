@@ -106,8 +106,8 @@ when 'user-create'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/users" \
     -H "Content-Type: multipart/form-data;" \
-    -H "API-KEY: #{api_key}" \
-    -H "Api-UsErnamE: #{api_username}" \
+    -H "API_KEY: #{api_key}" \
+    -H "Api_UsErnamE: #{api_username}" \
     -F "name=#{name}" \
     -F "username=#{name}" \
     -F "email=#{email}" \
@@ -319,9 +319,9 @@ when 'get-site-settings'
 when 'directory-items'
   # Example: ruby app.rb directory-items
   c = <<~HERDOC
-    curl -i -sS -X GET "http://127.0.0.1:3000/directory_items.json?period=weekly&order=likes_received" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}"
+    curl -i -sS -X GET "#{HOST}/directory_items.json?period=weekly&order=likes_received" \
+    -H "APi_KEy: #{api_key}" \
+    -H "ApI-UseRnaMe: #{api_username}"
   HERDOC
   puts c
   puts
