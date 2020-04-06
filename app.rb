@@ -102,6 +102,7 @@ when 'category-create2'
   puts `#{c}`
 when 'user-create'
   name = ARGV[1] || SecureRandom.hex[0..19]
+  puts "username: #{name}"
   email = ARGV[2] || "#{name}@example.com"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/users" \
@@ -472,7 +473,18 @@ when 'create-topic'
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "title=#{title}" \
-    -F "raw=#{raw}"
+    -F "raw=#{raw}" \
+    -F "archetype=regular"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'latest-topics'
+  # Example: ruby app.rb create-topic title raw
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/latest.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
   HERDOC
   puts c
   puts
@@ -511,15 +523,16 @@ when 'create-whisper'
   puts `#{c}`
 when 'create-post'
   # Example: ruby app.rb create-post topic_id
-  topic_id = ARGV[1]
-  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  username = ARGV[1]
+  topic_id = ARGV[2]
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
     -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
+    -H "Api-Username: #{username}" \
     -F "raw=#{raw}" \
     -F "topic_id=#{topic_id}" \
-    -F "no_bump=true"
+    -F "archetype=regular"
   HERDOC
   puts c
   puts
