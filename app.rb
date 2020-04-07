@@ -1,6 +1,7 @@
 require 'securerandom'
 require 'json'
 require 'yaml'
+require_relative 'lib/discourse_api_curl'
 
 @config = YAML.load_file(File.join(__dir__, 'config.yml'))
 site = ENV['SITE']
@@ -14,6 +15,8 @@ api_key = @config[site]['api_key']
 api_username = @config[site]['api_username']
 
 HOST = @config[site]['host']
+
+client = DiscourseApiCurl::Client.new(HOST, api_username, api_key)
 
 command = ARGV[0]
 if !command
@@ -104,26 +107,27 @@ when 'user-create'
   name = ARGV[1] || SecureRandom.hex[0..19]
   puts "username: #{name}"
   email = ARGV[2] || "#{name}@example.com"
-  c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/users" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "API_KEY: #{api_key}" \
-    -H "Api_UsErnamE: #{api_username}" \
-    -F "name=#{name}" \
-    -F "username=#{name}" \
-    -F "email=#{email}" \
-    -F "password=#{SecureRandom.hex}" \
-    -F "active=true" \
-    -F "user_fields[1]=#{name}" \
-    -F "user_fields[2]=#{SecureRandom.hex[0..10]}"
-  HERDOC
-  puts c
-  puts
-  puts response = `#{c}`
-  user_id = response.split('user_id')
-  id = user_id[1].split(':')[1].split('}')[0]
-  puts `ruby app.rb user-deactivate #{id}`
-  puts `ruby app.rb user-activate #{id}`
+  DiscourseApiCurl::User.create(client, name, email)
+  #c = <<~HERDOC
+  #  curl -i -sS -X POST "#{client.host}/users" \
+  #  -H "Content-Type: multipart/form-data;" \
+  #  -H "API-KEY: #{client.api_key}" \
+  #  -H "Api-UsErnamE: #{client.api_username}" \
+  #  -F "name=#{name}" \
+  #  -F "username=#{name}" \
+  #  -F "email=#{email}" \
+  #  -F "password=#{SecureRandom.hex}" \
+  #  -F "active=true" \
+  #  -F "user_fields[1]=#{name}" \
+  #  -F "user_fields[2]=#{SecureRandom.hex[0..10]}"
+  #HERDOC
+  #puts c
+  #puts
+  #puts response = `#{c}`
+  #user_id = response.split('user_id')
+  #id = user_id[1].split(':')[1].split('}')[0]
+  #puts `ruby app.rb user-deactivate #{id}`
+  #puts `ruby app.rb user-activate #{id}`
 when 'user-deactivate'
   user_id = ARGV[1]
   c = <<~HERDOC
