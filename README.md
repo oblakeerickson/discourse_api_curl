@@ -10,9 +10,11 @@ that I can call them again whenever I need to.
 
 ### Commands
 
-To use this app simply clone the repo and `cd` into it then run:
+To use this app simply clone the repo and `cd` into it and then
 
-`ruby app.rb <command>`
+- `cp config-example.yml config.yml`
+- edit `config.yml` to your liking
+- run with `ruby app.rb <command>`
 
 Here is a current list of commands
 
