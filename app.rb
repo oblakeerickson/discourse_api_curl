@@ -78,18 +78,13 @@ when 'category-rss'
   puts
   puts `#{c}`
 when 'category-create'
-  c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/categories" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "name=#{SecureRandom.hex}" \
-    -F "color=49d9e9" \
-    -F "text_color=f0fcfd"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  name = ARGV[1] || SecureRandom.hex
+  params = {
+    name: name,
+    color: "49d9e9",
+    text_color: "f0fcfd"
+  }
+  DiscourseApiCurl::Category.create(request, params)
 when 'category-create2'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \
