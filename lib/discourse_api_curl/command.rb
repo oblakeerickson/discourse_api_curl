@@ -15,6 +15,10 @@ module DiscourseApiCurl
     end
 
     def body(params)
+      unless Hash === params
+        params = params.to_h if params.respond_to? :to_h
+      end
+
       fields = ""
       params.each do |k,v|
         f = " "

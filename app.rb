@@ -101,10 +101,8 @@ when 'category-create2'
   puts `#{c}`
 when 'user-create'
   name = ARGV[1] || SecureRandom.hex[0..19]
-  email = ARGV[2] || "#{name}@example.com"
   params = {
     name: name,
-    email: email
   }
   DiscourseApiCurl::User.create(request, params)
 when 'user-deactivate'
