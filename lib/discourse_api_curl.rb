@@ -1,5 +1,6 @@
 require_relative 'discourse_api_curl/client'
 require_relative 'discourse_api_curl/params'
 require_relative 'discourse_api_curl/command'
-require_relative 'discourse_api_curl/user'
 require_relative 'discourse_api_curl/category'
+require_relative 'discourse_api_curl/group'
+require_relative 'discourse_api_curl/user'

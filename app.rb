@@ -176,17 +176,8 @@ when 'user-update'
   puts `#{c}`
 when 'group-create'
   # Example: ruby app.rb group-create name
-  group_name = ARGV[1] || SecureRandom.hex[0..19]
-  c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/admin/groups" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "group[name]=#{group_name}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  params = ARGV[1] ? { 'group[name]': ARGV[1] } : {}
+  DiscourseApiCurl::Group.create(request, params)
 when 'group-update'
   # Example: ruby app.rb group-create name
   id = ARGV[1]
