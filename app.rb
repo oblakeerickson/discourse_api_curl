@@ -432,17 +432,11 @@ when 'create-topic'
   # Example: ruby app.rb create-topic title raw
   title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/posts.json" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "title=#{title}" \
-    -F "raw=#{raw}" \
-    -F "archetype=regular"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  params = {
+    title: title,
+    raw: raw
+  }
+  DiscourseApiCurl::Topic.create(request, params)
 when 'latest-topics'
   # Example: ruby app.rb create-topic title raw
   c = <<~HERDOC
