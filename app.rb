@@ -61,6 +61,14 @@ when 'query-param-creds-test'
   puts c
   puts
   puts `#{c}`
+when 'query-param-creds-test-2'
+  # Example: ruby app.rb query-param-creds-test
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/admin/users/list/active.json?api_key=#{api_key}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'query-param-creds-test-bad-url'
   # Example: ruby app.rb query-param-creds-test
   c = <<~HERDOC
@@ -107,26 +115,10 @@ when 'user-create'
   DiscourseApiCurl::User.create(request, params)
 when 'user-deactivate'
   user_id = ARGV[1]
-  c = <<~HERDOC
-    curl -i -sS -X PUT "#{HOST}/admin/users/#{user_id}/deactivate.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  DiscourseApiCurl::User.deactivate(request, user_id)
 when 'user-activate'
   user_id = ARGV[1]
-  c = <<~HERDOC
-    curl -i -sS -X PUT "#{HOST}/admin/users/#{user_id}/activate.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  DiscourseApiCurl::User.activate(request, user_id)
 when 'user-update-username'
   username = ARGV[1]
   new_username = ARGV[2]
