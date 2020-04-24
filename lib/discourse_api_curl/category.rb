@@ -4,7 +4,12 @@ module DiscourseApiCurl
       params = DiscourseApiCurl.params(args)
         .required(:name, :color, :text_color)
 
-      request = command.post("/categories", params)
+      request = command.post("/categories.json", params)
+      command.exec(request)
+    end
+
+    def self.list(command)
+      request = command.get("/categories.json")
       command.exec(request)
     end
   end

@@ -93,6 +93,8 @@ when 'category-create'
     text_color: "f0fcfd"
   }
   DiscourseApiCurl::Category.create(request, params)
+when 'category-list'
+  DiscourseApiCurl::Category.list(request)
 when 'category-create2'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \

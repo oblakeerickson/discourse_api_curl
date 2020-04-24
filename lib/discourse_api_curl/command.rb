@@ -24,6 +24,15 @@ module DiscourseApiCurl
       c.chomp << body(params)
     end
 
+    def get(path)
+      c = <<~HERDOC
+        curl -i -sS -X GET "#{@client.host}#{path}" \
+        -H "Api-Key: #{@client.api_key}" \
+        -H "Api-Username: #{@client.api_username}"
+      HERDOC
+      c.chomp
+    end
+
     def body(params)
       unless Hash === params
         params = params.to_h if params.respond_to? :to_h
@@ -43,7 +52,12 @@ module DiscourseApiCurl
     def exec(request)
       pretty_print(request)
       puts
-      puts `#{request}`
+      response = `#{request}`
+      response_arr = response.split(/\r?\n/)
+      json = response_arr.pop(1)
+      puts response_arr
+      puts
+      puts `echo #{json} | jq '.'`
     end
 
     def pretty_format(request)
@@ -52,9 +66,11 @@ module DiscourseApiCurl
       pretty << parts[0] + " \\"
       pretty << "-H " + parts[1] + " \\"
       pretty << "-H " + parts[2] + " \\"
-      body_parts = parts[3].split("-F ")
-      pretty << "-H " + body_parts[0] + " \\"
-      if body_parts.length > 1
+      body_parts = parts[3]&.split("-F ")
+      if parts[3] != nil
+        pretty << "-H " + body_parts[0] + " \\"
+      end
+      if body_parts && body_parts.length > 1
         i = 1
         while i < body_parts.count - 1
           pretty << "-F " + body_parts[i] + " \\"
