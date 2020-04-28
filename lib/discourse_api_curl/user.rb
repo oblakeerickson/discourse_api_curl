@@ -18,6 +18,14 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.update(command, username, args)
+      params = DiscourseApiCurl.params(args)
+        .optional(:name, :title)
+
+      request = command.put("/u/#{username}.json", params)
+      command.exec(request)
+    end
+
     def self.activate(command, user_id)
       request = command.put("/admin/users/#{user_id}/activate.json")
       command.exec(request)

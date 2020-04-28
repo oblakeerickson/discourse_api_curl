@@ -150,24 +150,15 @@ when 'user-update-trust-level'
 when 'user-update'
   # Example: ruby app.rb user-update name title
   username = ARGV[1]
-  name = ARGV[2]
+  name = ARGV[2] || SecureRandom.hex[0..19]
   title = ARGV[3]
-  bio_raw = ARGV[4]
-  # website
-  # location
-  # profile_background
-  # card_background
-  c = <<~HERDOC
-    curl -i -sS -X PUT "http://127.0.0.1:3000/u/#{username}.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "name=#{name}" \
-    -F "title=#{title}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  params = {
+    name: name
+  }
+  if title
+    params[:title] = title
+  end
+  DiscourseApiCurl::User.update(request, username, params)
 when 'group-create'
   # Example: ruby app.rb group-create name
   params = ARGV[1] ? { 'group[name]': ARGV[1] } : {}
