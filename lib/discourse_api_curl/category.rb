@@ -1,5 +1,11 @@
 module DiscourseApiCurl
   class Category
+
+    def self.show(command, id)
+      request = command.get("/c/#{id}/show.json")
+      command.exec(request)
+    end
+
     def self.create(command, args)
       params = DiscourseApiCurl.params(args)
         .required(:name, :color, :text_color)
@@ -7,6 +13,7 @@ module DiscourseApiCurl
       request = command.post("/categories.json", params)
       command.exec(request)
     end
+
     def self.update(command, id, args)
       params = DiscourseApiCurl.params(args)
         .required(:name, :color, :text_color)

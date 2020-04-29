@@ -104,6 +104,11 @@ when 'category-update'
   DiscourseApiCurl::Category.update(request, id, params)
 when 'category-list'
   DiscourseApiCurl::Category.list(request)
+when 'category-show'
+  id = ARGV[1]
+  DiscourseApiCurl::Category.show(request, id)
+when 'posts-latest'
+  DiscourseApiCurl::Post.latest(request)
 when 'category-create2'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \
