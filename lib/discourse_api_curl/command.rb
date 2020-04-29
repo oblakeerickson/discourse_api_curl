@@ -57,6 +57,8 @@ module DiscourseApiCurl
       json = response_arr.pop(1)
       puts response_arr
       puts
+      puts json
+      puts
       puts `echo #{json} | jq '.'`
     end
 

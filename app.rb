@@ -93,6 +93,15 @@ when 'category-create'
     text_color: "f0fcfd"
   }
   DiscourseApiCurl::Category.create(request, params)
+when 'category-update'
+  id = ARGV[1]
+  name = ARGV[2] || SecureRandom.hex
+  params = {
+    name: name,
+    color: "49d9e9",
+    text_color: "f0fcfd"
+  }
+  DiscourseApiCurl::Category.update(request, id, params)
 when 'category-list'
   DiscourseApiCurl::Category.list(request)
 when 'category-create2'
