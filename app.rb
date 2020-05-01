@@ -109,6 +109,9 @@ when 'category-show'
   DiscourseApiCurl::Category.show(request, id)
 when 'posts-latest'
   DiscourseApiCurl::Post.latest(request)
+when 'posts-show'
+  id = ARGV[1]
+  DiscourseApiCurl::Post.show(request, id)
 when 'category-create2'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \
@@ -506,13 +509,13 @@ when 'update-post'
   # Example: ruby app.rb update-post post_id
   post_id = ARGV[1]
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  raw = "\u{1f4a9}"
-  raw = "\u{0000}"
+  #raw = "\u{1f4a9}"
+  #raw = "\u{0000}"
   c = <<~HERDOC
     curl -i -sS -X PUT "#{HOST}/posts/#{post_id}.json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
-    -F "post=#{raw}"
+    -F "post[raw]=#{raw}"
   HERDOC
   puts c
   puts
