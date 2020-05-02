@@ -112,6 +112,18 @@ when 'posts-latest'
 when 'posts-show'
   id = ARGV[1]
   DiscourseApiCurl::Post.show(request, id)
+when 'posts-lock'
+  id = ARGV[1]
+  params = {
+    locked: true
+  }
+  DiscourseApiCurl::Post.locked(request, id, params)
+when 'posts-unlock'
+  id = ARGV[1]
+  params = {
+    locked: false
+  }
+  DiscourseApiCurl::Post.locked(request, id, params)
 when 'category-create2'
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \

@@ -9,5 +9,12 @@ module DiscourseApiCurl
       request = command.get("/posts/#{id}.json")
       command.exec(request)
     end
+
+    def self.locked(command, id, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:locked)
+      request = command.put("/posts/#{id}/locked.json", params)
+      command.exec(request)
+    end
   end
 end
