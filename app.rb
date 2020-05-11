@@ -503,8 +503,8 @@ when 'create-whisper'
   puts `#{c}`
 when 'create-post'
   # Example: ruby app.rb create-post topic_id
-  username = ARGV[1]
-  topic_id = ARGV[2]
+  topic_id = ARGV[1]
+  username = ARGV[2] || api_username
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
