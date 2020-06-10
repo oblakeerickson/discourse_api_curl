@@ -459,6 +459,17 @@ when 'create-topic'
     raw: raw
   }
   DiscourseApiCurl::Topic.create(request, params)
+when 'create-topic-with-tags'
+  # Example: ruby app.rb create-topic title raw
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  tags = ARGV[4] || "#{SecureRandom.hex[0..7]}"
+  params = {
+    title: title,
+    raw: raw,
+    'tags[]' => tags
+  }
+  DiscourseApiCurl::Topic.create(request, params)
 when 'latest-topics'
   # Example: ruby app.rb create-topic title raw
   c = <<~HERDOC
