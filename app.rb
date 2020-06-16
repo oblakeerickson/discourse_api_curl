@@ -422,6 +422,14 @@ when 'upload-avatar'
   puts c
   puts
   puts `#{c}`
+when 'update-avatar'
+  username = ARGV[1]
+  upload_id = ARGV[2]
+
+  params = {
+    upload_id: upload_id,
+  }
+  DiscourseApiCurl::User.update_avatar(request, username, params)
 when 'create-topic-in-category'
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]

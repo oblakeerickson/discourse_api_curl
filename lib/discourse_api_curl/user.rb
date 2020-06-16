@@ -35,5 +35,12 @@ module DiscourseApiCurl
       request = command.put("/admin/users/#{user_id}/deactivate.json")
       command.exec(request)
     end
+
+    def self.update_avatar(command, username, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:upload_id)
+      request = command.put("/u/#{username}/preferences/avatar/pick.json", params)
+      command.exec(request)
+    end
   end
 end
