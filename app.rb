@@ -536,6 +536,26 @@ when 'create-post'
   puts c
   puts
   puts `#{c}`
+when 'get-posts-from-topic'
+  # Example: ruby app.rb update-post post_id
+  topic_id = ARGV[1]
+  post_ids = ARGV[2]
+  post_ids_arr = post_ids.split(',')
+  form_data = ""
+  post_ids_arr.each do |id|
+    form_data << "-F 'post_ids[]=#{id}' "
+  end
+  puts form_data
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "post_ids[]=#{post_ids_arr[0]}" \
+    -F "post_ids[]=#{post_ids_arr[1]}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'update-post'
   # Example: ruby app.rb update-post post_id
   post_id = ARGV[1]
