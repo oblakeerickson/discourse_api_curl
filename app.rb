@@ -478,8 +478,29 @@ when 'create-topic-with-tags'
     'tags[]' => tags
   }
   DiscourseApiCurl::Topic.create(request, params)
+when 'top-topics'
+  # Example: ruby app.rb top-topics
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/top.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'top-topics-flag'
+  flag = ARGV[1] || 'all'
+  # Example: ruby app.rb top-topics
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/top/#{flag}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'latest-topics'
-  # Example: ruby app.rb create-topic title raw
+  # Example: ruby app.rb latest-topics
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/latest.json" \
     -H "Api-Key: #{api_key}" \
@@ -552,6 +573,78 @@ when 'get-posts-from-topic'
     -H "Api-Username: #{api_username}" \
     -F "post_ids[]=#{post_ids_arr[0]}" \
     -F "post_ids[]=#{post_ids_arr[1]}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'get-topic'
+  topic_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/t/#{topic_id}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'remove-topic'
+  topic_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X DELETE "#{HOST}/t/#{topic_id}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'update-topic'
+  # Example: ruby app.rb update-topic topic_id
+  topic_id = ARGV[1]
+  title = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex}" 
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/t/-/#{topic_id}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "title=#{title}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'invite-to-topic'
+  # Example: ruby app.rb update-topic topic_id
+  topic_id = ARGV[1]
+  email = ARGV[2] || "discobot" 
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/t/#{topic_id}/invite.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "email=#{email}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'bookmark-topic'
+  # Example: ruby app.rb bookmark-topic topic_id
+  topic_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/t/#{topic_id}/bookmark.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'update-topic-status'
+  # Example: ruby app.rb update-topic-status topic_id
+  topic_id = ARGV[1]
+  status = ARGV[2] || "closed"
+  enabled = ARGV[3] || "true"
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/t/#{topic_id}/status.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "status=#{status}" \
+    -F "enabled=#{enabled}"
   HERDOC
   puts c
   puts
