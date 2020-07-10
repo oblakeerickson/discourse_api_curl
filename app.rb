@@ -234,6 +234,46 @@ when 'group-add-members'
   puts c
   puts
   puts `#{c}`
+when 'group-add-members-via-email'
+  # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
+  group_id = ARGV[1]
+  user_emails = ARGV[2] #comma separated
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}/groups/#{group_id}/members.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "user_emails=#{user_emails}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'group-list-members'
+  # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
+  group_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/groups/#{group_id}/members.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'group-remove-members-via-email'
+  # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
+  group_id = ARGV[1]
+  user_emails = ARGV[2] #comma separated
+  c = <<~HERDOC
+    curl -i -sS -X DELETE "#{HOST}/groups/#{group_id}/members.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "user_emails=#{user_emails}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'group-add-members-via-admin'
   # Example: ruby app.rb group-add-members-via-admin 41 asdf,fdsg
   group_id = ARGV[1]
@@ -471,7 +511,7 @@ when 'create-topic-with-tags'
   # Example: ruby app.rb create-topic title raw
   title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  tags = ARGV[4] || "#{SecureRandom.hex[0..7]}"
+  tags = ARGV[4] || "#{SecureRandom.hex[0..7]},#{SecureRandom.hex[0..7]}"
   params = {
     title: title,
     raw: raw,
@@ -744,4 +784,25 @@ when 'canned-replies-delete-as-user'
   puts c
   puts
   puts `#{c}`
+when 'set-notification-level'
+  id = ARGV[1]
+  level = ARGV[2] || '0'
+  params = {
+    notification_level: level,
+  }
+  DiscourseApiCurl::Topic.set_notification_level(request, id, params)
+when 'update-timestamp'
+  id = ARGV[1]
+  timestamp = ARGV[2] || '1594291380'
+  params = {
+    timestamp: timestamp,
+  }
+  DiscourseApiCurl::Topic.update_timestamp(request, id, params)
+when 'create-timer'
+  id = ARGV[1]
+  timer = ARGV[2] || '1594291380'
+  params = {
+    timestamp: timestamp,
+  }
+  DiscourseApiCurl::Topic.update_timestamp(request, id, params)
 end
