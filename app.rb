@@ -390,7 +390,7 @@ when 'notifications-mark-read'
     curl -s -X PUT "#{HOST}/notifications/mark-read" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
-    -F "id=#{id}" | jq .
+    -F "id=#{id}"
   HERDOC
   puts c
   puts
@@ -441,6 +441,26 @@ when 'create-pm'
     -F "target_usernames=#{target_usernames}" \
     -F "raw=#{raw}" \
     -F "archetype=private_message"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'get-pms'
+  username = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/topics/private-messages/#{username}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'get-pms-sent'
+  username = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/topics/private-messages-sent/#{username}.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
   HERDOC
   puts c
   puts
@@ -505,6 +525,16 @@ when 'create-topic'
   params = {
     title: title,
     raw: raw
+  }
+  DiscourseApiCurl::Topic.create(request, params)
+when 'create-closed-topic'
+  # Example: ruby app.rb create-topic title raw
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  params = {
+    title: title,
+    raw: raw,
+    status: "closed",
   }
   DiscourseApiCurl::Topic.create(request, params)
 when 'create-topic-with-tags'
@@ -581,6 +611,19 @@ when 'create-whisper'
   puts c
   puts
   puts `#{c}`
+when 'create-tag-group'
+  # Example: ruby app.rb create-post topic_id
+  name = ARGV[1] || "#{SecureRandom.hex}"
+  tag = ARGV[2] || "#{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/tag_groups" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "name=#{name}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'create-post'
   # Example: ruby app.rb create-post topic_id
   topic_id = ARGV[1]
@@ -593,6 +636,23 @@ when 'create-post'
     -F "raw=#{raw}" \
     -F "topic_id=#{topic_id}" \
     -F "archetype=regular"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-closed-post'
+  # Example: ruby app.rb create-post topic_id
+  topic_id = ARGV[1]
+  username = ARGV[2] || api_username
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{username}" \
+    -F "raw=#{raw}" \
+    -F "topic_id=#{topic_id}" \
+    -F "archetype=regular" \
+    -F "status=closed"
   HERDOC
   puts c
   puts
