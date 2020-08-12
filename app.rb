@@ -353,6 +353,17 @@ when 'directory-items'
   puts c
   puts
   puts `#{c}`
+when 'directory-items-delete'
+  # Example: ruby app.rb directory-items
+  id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X DELETE "#{HOST}/directory_items/#{id}" \
+    -H "APi_KEy: #{api_key}" \
+    -H "ApI-UseRnaMe: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'timed-topic-create'
   # Example: ruby app.rb timed-topic-create 41 2019-01-17+08:00-07:00 publish_to_category 1
   topic_id = ARGV[1]
@@ -519,18 +530,16 @@ when 'create-topic-in-category'
   puts
   puts `#{c}`
 when 'create-topic'
-  # Example: ruby app.rb create-topic title raw
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
-  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   params = {
     title: title,
     raw: raw
   }
   DiscourseApiCurl::Topic.create(request, params)
 when 'create-closed-topic'
-  # Example: ruby app.rb create-topic title raw
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
-  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   params = {
     title: title,
     raw: raw,
@@ -538,10 +547,9 @@ when 'create-closed-topic'
   }
   DiscourseApiCurl::Topic.create(request, params)
 when 'create-topic-with-tags'
-  # Example: ruby app.rb create-topic title raw
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
-  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  tags = ARGV[4] || "#{SecureRandom.hex[0..7]},#{SecureRandom.hex[0..7]}"
+  title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  tags = ARGV[3] || "#{SecureRandom.hex[0..7]},#{SecureRandom.hex[0..7]}"
   params = {
     title: title,
     raw: raw,
