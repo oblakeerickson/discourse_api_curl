@@ -16,5 +16,13 @@ module DiscourseApiCurl
       request = command.put("/posts/#{id}/locked.json", params)
       command.exec(request)
     end
+
+    def self.whisper(command, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:raw, :topic_id)
+        .default(whisper: true)
+      request = command.post("/posts.json", params)
+      command.exec(request)
+    end
   end
 end

@@ -608,17 +608,11 @@ when 'create-whisper'
   # Example: ruby app.rb create-whisper topic_id
   topic_id = ARGV[1]
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/posts.json" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "raw=#{raw}" \
-    -F "topic_id=#{topic_id}" \
-    -F "whisper=true"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  params = {
+    topic_id: topic_id,
+    raw: raw,
+  }
+  DiscourseApiCurl::Post.whisper(request, params)
 when 'create-tag-group'
   # Example: ruby app.rb create-post topic_id
   name = ARGV[1] || "#{SecureRandom.hex}"
