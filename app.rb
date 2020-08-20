@@ -88,7 +88,7 @@ when 'category-rss'
 when 'category-create'
   name = ARGV[1] || SecureRandom.hex
   params = {
-    name: name,
+    #name: name,
     color: "49d9e9",
     text_color: "f0fcfd"
   }
@@ -596,6 +596,46 @@ when 'create-topic-json'
   puts data
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Content-Type: application/json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -d "#{data}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-user-field'
+  # Example: ruby app.rb create-topic title category_id raw
+  name = ARGV[1] || "#{SecureRandom.hex[0..10]}"
+  description = ARGV[2] || "#{SecureRandom.hex}"
+  field_type = ARGV[3] || "text"
+  required = ARGV[4] || "false"
+
+  #data = "{\\\"title\\\": \\\"#{title}\\\", \\\"category\\\": \\\"#{category_id}\\\", \\\"raw\\\": \\\"#{raw}\\\"}"
+  #puts data
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/admin/customize/user_fields.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "user_field[name]=#{name}" \
+    -F "user_field[description]=#{description}" \
+    -F "user_field[field_type]=#{field_type}" \
+    -F "user_field[required]=#{required}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'create-user-field-json'
+  # Example: ruby app.rb create-topic title category_id raw
+  name = ARGV[1] || "#{SecureRandom.hex[0..10]}"
+  description = ARGV[2] || "#{SecureRandom.hex}"
+  field_type = ARGV[3] || "text"
+  required = ARGV[4] || "false"
+
+  data = "{\\\"user_field\\\": { \\\"name\\\": \\\"#{name}\\\", \\\"description\\\": \\\"#{description}\\\", \\\"field_type\\\": \\\"#{field_type}\\\", \\\"required\\\": \\\"#{required}\\\"}}"
+  puts data
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/admin/customize/user_fields.json" \
     -H "Content-Type: application/json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \

@@ -17,8 +17,7 @@ module DiscourseApiCurl
 
     def self.update(command, id, args)
       params = DiscourseApiCurl.params(args)
-        .required(:name)
-        .optional(:color, :text_color)
+        .optional(:name, :color, :text_color)
 
       request = command.put("/categories/#{id}.json", params)
       command.exec(request)
