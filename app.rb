@@ -1,6 +1,7 @@
 require 'securerandom'
 require 'json'
 require 'yaml'
+require 'date'
 require_relative 'lib/discourse_api_curl'
 
 @config = YAML.load_file(File.join(__dir__, 'config.yml'))
@@ -150,6 +151,21 @@ when 'user-deactivate'
 when 'user-activate'
   user_id = ARGV[1]
   DiscourseApiCurl::User.activate(request, user_id)
+when 'user-suspend'
+  user_id = ARGV[1]
+  suspend_until = ARGV[2]# || (Date.today + 10)
+  reason = ARGV[3]# || SecureRandom.hex
+  message = ARGV[4]
+  params = {
+    suspend_until: suspend_until,
+    reason: reason
+  }
+  params[:message] = message if message
+
+  DiscourseApiCurl::User.suspend(request, user_id, params)
+when 'user-unsuspend'
+  user_id = ARGV[1]
+  DiscourseApiCurl::User.unsuspend(request, user_id)
 when 'user-update-username'
   username = ARGV[1]
   new_username = ARGV[2]

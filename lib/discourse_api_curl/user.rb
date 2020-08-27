@@ -42,5 +42,18 @@ module DiscourseApiCurl
       request = command.put("/u/#{username}/preferences/avatar/pick.json", params)
       command.exec(request)
     end
+
+    def self.suspend(command, user_id, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:suspend_until, :reason)
+        .optional(:message, :post_action, :not_permitted)
+      request = command.put("/admin/users/#{user_id}/suspend.json", params)
+      command.exec(request)
+    end
+
+    def self.unsuspend(command, user_id)
+      request = command.put("/admin/users/#{user_id}/unsuspend.json")
+      command.exec(request)
+    end
   end
 end
