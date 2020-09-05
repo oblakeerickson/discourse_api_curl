@@ -923,4 +923,7 @@ when 'create-timer'
     timestamp: timestamp,
   }
   DiscourseApiCurl::Topic.update_timestamp(request, id, params)
+when 'user-get'
+  username = ARGV[1]
+  DiscourseApiCurl::User.public_get(request, username)
 end

@@ -55,5 +55,10 @@ module DiscourseApiCurl
       request = command.put("/admin/users/#{user_id}/unsuspend.json")
       command.exec(request)
     end
+
+    def self.public_get(command, username)
+      request = command.get("/u/#{username}.json")
+      command.exec(request)
+    end
   end
 end
