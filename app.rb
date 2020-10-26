@@ -769,11 +769,32 @@ when 'update-topic'
   puts
   puts `#{c}`
 when 'invite-to-topic'
-  # Example: ruby app.rb update-topic topic_id
   topic_id = ARGV[1]
   email = ARGV[2] || "discobot" 
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/t/#{topic_id}/invite.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "email=#{email}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'invite-by-email'
+  email = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/invites.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "email=#{email}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'invite-by-link'
+  email = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/invites/link.json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "email=#{email}"
