@@ -89,7 +89,7 @@ when 'category-rss'
 when 'category-create'
   name = ARGV[1] || SecureRandom.hex
   params = {
-    #name: name,
+    name: name,
     color: "49d9e9",
     text_color: "f0fcfd"
   }
@@ -141,10 +141,35 @@ when 'category-create2'
   puts `#{c}`
 when 'user-create'
   name = ARGV[1] || SecureRandom.hex[0..19]
+  active = ARGV[2] || true
   params = {
     name: name,
+    active: active,
   }
   DiscourseApiCurl::User.create(request, params)
+when 'create-user-json'
+  name = ARGV[1] || SecureRandom.hex[0..19]
+  active = "true"
+  username = name
+  email = "#{name}@example.com"
+  password = SecureRandom.hex
+  data = "{\\\"name\\\": \\\"#{name}\\\", \\\"active\\\": \\\"#{active}\\\", \\\"username\\\": \\\"#{username}\\\", \\\"email\\\": \\\"#{email}\\\", \\\"password\\\": \\\"#{password}\\\"}"
+  puts data
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/users.json" \
+    -H "Content-Type: application/json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -d "#{data}"
+  HERDOC
+  #c = <<~HERDOC
+  #  curl -i -sS -X POST "#{HOST}/users.json" \
+  #  -H "Content-Type: application/json" \
+  #  -d "#{data}"
+  #HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'user-deactivate'
   user_id = ARGV[1]
   DiscourseApiCurl::User.deactivate(request, user_id)
@@ -947,4 +972,6 @@ when 'create-timer'
 when 'user-get'
   username = ARGV[1]
   DiscourseApiCurl::User.public_get(request, username)
+when 'tags-list'
+  DiscourseApiCurl::Tag.list(request)
 end

@@ -1,3 +1,5 @@
+require 'json'
+
 module DiscourseApiCurl
   class Command
     def initialize(client)
@@ -54,12 +56,12 @@ module DiscourseApiCurl
       puts
       response = `#{request}`
       response_arr = response.split(/\r?\n/)
-      json = response_arr.pop(1)
+      json = response_arr.pop(1).first
       puts response_arr
-      puts
+      puts ""
       puts json
-      puts
-      puts `echo #{json} | jq '.'`
+      puts ""
+      puts JSON.pretty_generate(JSON.parse(json))
     end
 
     def pretty_format(request)

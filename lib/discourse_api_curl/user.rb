@@ -9,7 +9,7 @@ module DiscourseApiCurl
           email: "#{args[:name]}@example.com",
           password: SecureRandom.hex,
           active: true,
-          approved: true,
+          #approved: false,
           #"user_fields[1]": SecureRandom.hex[0..10],
           #"user_fields[2]": SecureRandom.hex[0..10]
         )
