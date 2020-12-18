@@ -423,6 +423,16 @@ when 'timed-topic-create'
   puts c
   puts
   puts `#{c}`
+when 'notification-create'
+  notification_type = ARGV[1] || "liked"
+  data = ARGV[2] || {}
+  user_id = ARGV[3] || -1
+  params = {
+    notification_type: notification_type,
+    data: data,
+    user_id: user_id,
+  }
+  DiscourseApiCurl::Notification.create(request, params)
 when 'notifications'
   # Example: ruby app.rb notifications username
   username = ARGV[1]
