@@ -528,30 +528,47 @@ when 'get-pms-sent'
   puts
   puts `#{c}`
 when 'upload-avatar'
+  #  SITE=desktop ruby app.rb upload-avatar 1 @/home/blake/tmp/boss.png
   user_id = ARGV[1]
   file = ARGV[2]
   type = "avatar"
   synchronous = true
-  c = <<~HERDOC
-    curl -i -sS -X POST "#{HOST}/uploads.json" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "files[]=#{file}" \
-    -F "type=#{type}" \
-    -F "user_id=#{user_id}" \
-    -F "synchronous=true"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  #c = <<~HERDOC
+  #  curl -i -sS -X POST "#{HOST}/uploads.json" \
+  #  -H "Api-Key: #{api_key}" \
+  #  -H "Api-Username: #{api_username}" \
+  #  -F "file=#{file}" \
+  #  -F "type=#{type}" \
+  #  -F "user_id=#{user_id}" \
+  #  -F "synchronous=true"
+  #HERDOC
+  #puts c
+  #puts
+  #puts `#{c}`
+  params = {
+    type: type,
+    user_id: user_id,
+    synchronous: synchronous,
+    file: file
+  }
+  DiscourseApiCurl::Upload.create(request, params)
 when 'update-avatar'
   username = ARGV[1]
   upload_id = ARGV[2]
 
   params = {
     upload_id: upload_id,
+    type: 'uploaded'
   }
   DiscourseApiCurl::User.update_avatar(request, username, params)
+when 'update-email'
+  username = ARGV[1]
+  email = ARGV[2]
+
+  params = {
+    email: email
+  }
+  DiscourseApiCurl::User.update_email(request, username, params)
 when 'create-topic-in-category'
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]
@@ -982,6 +999,34 @@ when 'create-timer'
 when 'user-get'
   username = ARGV[1]
   DiscourseApiCurl::User.public_get(request, username)
+when 'user-by-external'
+  external_id = ARGV[1]
+  DiscourseApiCurl::User.by_external(request, external_id)
 when 'tags-list'
   DiscourseApiCurl::Tag.list(request)
+when 'embedding-add-host'
+  host = ARGV[1]
+  category_id = ARGV[2]
+  params = {
+    host: host,
+    category_id: category_id
+  }
+  DiscourseApiCurl::Embedding.create(request, params)
+when 'rsspolling-get'
+  DiscourseApiCurl::RSSPolling.get(request)
+when 'rsspolling-update'
+  feed_settings_json = ARGV[1]
+  path = "/admin/plugins/rss_polling/feed_settings.json"
+
+  #DiscourseApiCurl::RSSPolling.update(request, feed_settings)
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}#{path}" \
+    -H "Content-Type: application/json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -d '#{feed_settings_json}'
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 end

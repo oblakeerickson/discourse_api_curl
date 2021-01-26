@@ -56,12 +56,17 @@ module DiscourseApiCurl
       puts
       response = `#{request}`
       response_arr = response.split(/\r?\n/)
-      json = response_arr.pop(1).first
+      response_content = response_arr.pop(1).first
       puts response_arr
       puts ""
-      puts json
+      puts response_content
       puts ""
-      puts JSON.pretty_generate(JSON.parse(json))
+      begin
+      json = JSON.parse(response_content)
+      puts JSON.pretty_generate(json)
+      rescue JSON::ParserError => e
+        puts "Empty Response Body"
+      end
     end
 
     def pretty_format(request)

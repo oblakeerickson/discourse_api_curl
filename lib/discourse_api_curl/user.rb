@@ -38,8 +38,15 @@ module DiscourseApiCurl
 
     def self.update_avatar(command, username, args)
       params = DiscourseApiCurl.params(args)
-        .required(:upload_id)
+        .required(:upload_id, :type)
       request = command.put("/u/#{username}/preferences/avatar/pick.json", params)
+      command.exec(request)
+    end
+
+    def self.update_email(command, username, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:email)
+      request = command.put("/u/#{username}/preferences/email.json", params)
       command.exec(request)
     end
 
@@ -58,6 +65,11 @@ module DiscourseApiCurl
 
     def self.public_get(command, username)
       request = command.get("/u/#{username}.json")
+      command.exec(request)
+    end
+
+    def self.by_external(command, external_id)
+      request = command.get("/u/by-external/#{external_id}.json")
       command.exec(request)
     end
   end
