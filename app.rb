@@ -229,10 +229,18 @@ when 'user-update'
     params[:title] = title
   end
   DiscourseApiCurl::User.update(request, username, params)
+when 'groups-list'
+  DiscourseApiCurl::Group.list(request)
+when 'group'
+  name = ARGV[1]
+  DiscourseApiCurl::Group.get(request, name)
 when 'group-create'
   # Example: ruby app.rb group-create name
   params = ARGV[1] ? { 'group[name]': ARGV[1] } : {}
   DiscourseApiCurl::Group.create(request, params)
+when 'group-delete'
+  id = ARGV[1]
+  DiscourseApiCurl::Group.delete(request, id)
 when 'group-update'
   # Example: ruby app.rb group-create name
   id = ARGV[1]
@@ -262,19 +270,12 @@ when 'group-add-members-ids'
   puts
   puts `#{c}`
 when 'group-add-members'
-  # Example: ruby app.rb group-add-members 41 asdf,fdsg
-  group_id = ARGV[1]
+  id = ARGV[1]
   usernames = ARGV[2] #comma separated
-  c = <<~HERDOC
-    curl -i -sS -X PUT "#{HOST}/groups/#{group_id}/members.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "usernames=#{usernames}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  params = {
+    usernames: usernames
+  }
+  DiscourseApiCurl::Group.add_members(request, id, params)
 when 'group-add-members-via-email'
   # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
   group_id = ARGV[1]
@@ -290,17 +291,8 @@ when 'group-add-members-via-email'
   puts
   puts `#{c}`
 when 'group-list-members'
-  # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
-  group_id = ARGV[1]
-  c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/groups/#{group_id}/members.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  name = ARGV[1]
+  DiscourseApiCurl::Group.list_members(request, name)
 when 'group-remove-members-via-email'
   # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
   group_id = ARGV[1]
