@@ -996,9 +996,32 @@ when 'create-timer'
     timestamp: timestamp,
   }
   DiscourseApiCurl::Topic.update_timestamp(request, id, params)
-when 'user-get'
+when 'user-public-get'
   username = ARGV[1]
   DiscourseApiCurl::User.public_get(request, username)
+when 'user-get'
+  id = ARGV[1]
+  DiscourseApiCurl::User.get(request, id)
+when 'user-list'
+  flag = ARGV[1]
+  DiscourseApiCurl::User.list(request, flag)
+when 'log-out'
+  id = ARGV[1]
+  DiscourseApiCurl::User.log_out(request, id)
+when 'refresh-gravatar'
+  username = ARGV[1]
+  DiscourseApiCurl::User.refresh_gravatar(request, username)
+when 'user-actions'
+  username = ARGV[1]
+  params = {
+    username: username,
+    filter: "4,5",
+    offset: 0
+  }
+  DiscourseApiCurl::User.user_actions(request, params)
+when 'user-delete'
+  id = ARGV[1]
+  DiscourseApiCurl::User.delete(request, id)
 when 'user-by-external'
   external_id = ARGV[1]
   DiscourseApiCurl::User.by_external(request, external_id)
@@ -1018,13 +1041,26 @@ when 'rsspolling-update'
   feed_settings_json = ARGV[1]
   path = "/admin/plugins/rss_polling/feed_settings.json"
 
-  #DiscourseApiCurl::RSSPolling.update(request, feed_settings)
   c = <<~HERDOC
     curl -i -sS -X PUT "#{HOST}#{path}" \
     -H "Content-Type: application/json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -d '#{feed_settings_json}'
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'download-backup'
+  backup = ARGV[1]
+  token = ARGV[2]
+
+  c = <<~HERDOC
+    curl -i -o /tmp/#{backup} -X GET "#{HOST}/admin/backups/#{backup}" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -F "token=#{token}"
   HERDOC
   puts c
   puts

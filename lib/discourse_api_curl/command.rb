@@ -6,7 +6,7 @@ module DiscourseApiCurl
       @client = client
     end
 
-    def post(path, params)
+    def post(path, params = {})
       c = <<~HERDOC
         curl -i -sS -X POST "#{@client.host}#{path}" \
         -H "Content-Type: multipart/form-data;" \
@@ -33,6 +33,16 @@ module DiscourseApiCurl
         -H "Api-Username: #{@client.api_username}"
       HERDOC
       c.chomp
+    end
+
+    def delete(path, params = {})
+      c = <<~HERDOC
+        curl -i -sS -X DELETE "#{@client.host}#{path}" \
+        -H "Content-Type: multipart/form-data;" \
+        -H "Api-Key: #{@client.api_key}" \
+        -H "Api-Username: #{@client.api_username}"
+      HERDOC
+      c.chomp << body(params)
     end
 
     def body(params)

@@ -68,8 +68,42 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.get(command, id)
+      request = command.get("/admin/users/#{id}.json")
+      command.exec(request)
+    end
+
+    def self.delete(command, id)
+      request = command.delete("/admin/users/#{id}.json")
+      command.exec(request)
+    end
+
+    def self.list(command, flag)
+      request = command.get("/admin/users/list/#{flag}.json")
+      command.exec(request)
+    end
+
     def self.by_external(command, external_id)
       request = command.get("/u/by-external/#{external_id}.json")
+      command.exec(request)
+    end
+
+    def self.user_actions(command, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:offset, :username, :filter)
+        .to_h
+
+      request = command.get("/user_actions.json?offset=#{params[:offset]}&username=#{params[:username]}&filter=#{params[:filter]}")
+      command.exec(request)
+    end
+
+    def self.log_out(command, id)
+      request = command.post("/admin/users/#{id}/log_out.json")
+      command.exec(request)
+    end
+
+    def self.refresh_gravatar(command, username)
+      request = command.post("/user_avatar/#{username}/refresh_gravatar.json")
       command.exec(request)
     end
   end
