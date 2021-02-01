@@ -335,20 +335,13 @@ when 'group-add-owners'
   puts c
   puts
   puts `#{c}`
-when 'group-remove-member'
-  # Example: ruby app.rb group-remove-member 41 3
-  group_id = ARGV[1]
-  user_id = ARGV[2]
-  c = <<~HERDOC
-    curl -i -sS -X DELETE "#{HOST}/groups/#{group_id}/members.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "user_id=#{user_id}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+when 'group-remove-members'
+  id = ARGV[1]
+  usernames = ARGV[2] #comma separated
+  params = {
+    usernames: usernames
+  }
+  DiscourseApiCurl::Group.remove_members(request, id, params)
 when 'update-site-setting'
   # Example: ruby app.rb update-site-setting name value
   name = ARGV[1]
@@ -931,10 +924,11 @@ when 'search'
   # Example: ruby app.rb get-site-settings
   query = ARGV[1]
   c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/search?q=#{query}" \
+    curl -i -sS -X GET "#{HOST}/search.json" \
     -H "Content-Type: multipart/form-data;" \
     -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}"
+    -H "Api-Username: #{api_username}" \
+    -F "q=#{query}"
   HERDOC
   puts c
   puts
@@ -1017,6 +1011,12 @@ when 'user-delete'
 when 'user-by-external'
   external_id = ARGV[1]
   DiscourseApiCurl::User.by_external(request, external_id)
+when 'password-reset'
+  username = ARGV[1]
+  params = {
+    login: username
+  }
+  DiscourseApiCurl::User.password_reset(request, params)
 when 'tags-list'
   DiscourseApiCurl::Tag.list(request)
 when 'embedding-add-host'

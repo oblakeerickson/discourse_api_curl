@@ -106,5 +106,12 @@ module DiscourseApiCurl
       request = command.post("/user_avatar/#{username}/refresh_gravatar.json")
       command.exec(request)
     end
+
+    def self.password_reset(command, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:login)
+      request = command.post("/session/forgot_password.json", params)
+      command.exec(request)
+    end
   end
 end

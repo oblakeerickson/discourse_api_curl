@@ -35,6 +35,14 @@ module DiscourseApiCurl
       request = command.put("/groups/#{id}/members.json", params)
       command.exec(request)
     end
+
+    def self.remove_members(command, id, args)
+      params = DiscourseApiCurl.params(args)
+        .optional(:usernames, :user_ids, :user_emails)
+
+      request = command.delete("/groups/#{id}/members.json", params)
+      command.exec(request)
+    end
   end
 end
 
