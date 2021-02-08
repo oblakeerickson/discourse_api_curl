@@ -1043,6 +1043,16 @@ when 'rsspolling-update'
   puts c
   puts
   puts `#{c}`
+when 'backups-list'
+  DiscourseApiCurl::Backup.list(request)
+when 'backups-create'
+  params = {
+    with_uploads: false
+  }
+  DiscourseApiCurl::Backup.create(request, params)
+when 'backups-send-email'
+  filename = ARGV[1]
+  DiscourseApiCurl::Backup.send_download_email(request, filename)
 when 'download-backup'
   backup = ARGV[1]
   token = ARGV[2]
@@ -1057,4 +1067,8 @@ when 'download-backup'
   puts c
   puts
   puts `#{c}`
+  #params = {
+  #  token: token
+  #}
+  #DiscourseApiCurl::Backup.download_backup(request, filename)
 end
