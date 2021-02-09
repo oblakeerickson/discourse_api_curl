@@ -88,19 +88,17 @@ when 'category-rss'
   puts `#{c}`
 when 'category-create'
   name = ARGV[1] || SecureRandom.hex
+  color = "49d9e9",
+  text_color = "f0fcfd"
   params = {
-    name: name,
-    color: "49d9e9",
-    text_color: "f0fcfd"
+    name: name
   }
   DiscourseApiCurl::Category.create(request, params)
 when 'category-update'
   id = ARGV[1]
   name = ARGV[2] || SecureRandom.hex
   params = {
-    name: name,
-    color: "49d9e9",
-    text_color: "f0fcfd"
+    name: name
   }
   DiscourseApiCurl::Category.update(request, id, params)
 when 'category-list'
@@ -108,6 +106,10 @@ when 'category-list'
 when 'category-show'
   id = ARGV[1]
   DiscourseApiCurl::Category.show(request, id)
+when 'category-topics'
+  slug = ARGV[1]
+  id = ARGV[2]
+  DiscourseApiCurl::Category.topics(request, slug, id)
 when 'posts-latest'
   DiscourseApiCurl::Post.latest(request)
 when 'posts-show'

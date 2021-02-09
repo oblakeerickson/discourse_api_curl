@@ -5,6 +5,10 @@ module DiscourseApiCurl
       request = command.get("/c/#{id}/show.json")
       command.exec(request)
     end
+    def self.topics(command, slug, id)
+      request = command.get("/c/#{slug}/#{id}.json")
+      command.exec(request)
+    end
 
     def self.create(command, args)
       params = DiscourseApiCurl.params(args)
