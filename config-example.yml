@@ -1,0 +1,4 @@
+laptop:
+  host: 'http://localhost:3000'
+  api_key: ''
+  api_username: 'system'
