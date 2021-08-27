@@ -35,6 +35,15 @@ module DiscourseApiCurl
       c.chomp << body(params)
     end
 
+    def get_urlencode(path, query)
+      c = <<~HERDOC
+        curl -i -sS -X GET -G "#{@client.host}#{path}" \
+        --data-urlencode 'q=#{query}' \
+        -H "Api-Key: #{@client.api_key}" \
+        -H "Api-Username: #{@client.api_username}"
+      HERDOC
+    end
+
     def delete(path, params = {})
       c = <<~HERDOC
         curl -i -sS -X DELETE "#{@client.host}#{path}" \

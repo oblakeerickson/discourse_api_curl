@@ -78,6 +78,11 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.anonymize(command, id)
+      request = command.put("/admin/users/#{id}/anonymize.json")
+      command.exec(request)
+    end
+
     def self.list(command, flag)
       request = command.get("/admin/users/list/#{flag}.json")
       command.exec(request)
@@ -111,6 +116,16 @@ module DiscourseApiCurl
       params = DiscourseApiCurl.params(args)
         .required(:login)
       request = command.post("/session/forgot_password.json", params)
+      command.exec(request)
+    end
+
+    def self.user_badges(command, username)
+      request = command.get("/user-badges/#{username}.json")
+      command.exec(request)
+    end
+
+    def self.profile(command, username)
+      request = command.get("/u/#{username}.json")
       command.exec(request)
     end
   end

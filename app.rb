@@ -925,16 +925,16 @@ when 'create-shared-draft'
 when 'search'
   # Example: ruby app.rb get-site-settings
   query = ARGV[1]
-  c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/search.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "q=#{query}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  #c = <<~HERDOC
+  #  curl -i -sS -X GET -G "#{HOST}/search.json" --data-urlencode 'q=#{query}' \
+  #  -H "Api-Key: #{api_key}" \
+  #  -H "Api-Username: #{api_username}"
+  #HERDOC
+  ##  -F "q=#{query}"
+  #puts c
+  #puts
+  #puts `#{c}`
+  DiscourseApiCurl::Search.q(request, query)
 when 'canned-replies-anonymous'
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/canned_replies"
@@ -1010,6 +1010,15 @@ when 'user-actions'
 when 'user-delete'
   id = ARGV[1]
   DiscourseApiCurl::User.delete(request, id)
+when 'user-anonymize'
+  id = ARGV[1]
+  DiscourseApiCurl::User.anonymize(request, id)
+when 'user-badges'
+  username = ARGV[1]
+  DiscourseApiCurl::User.user_badges(request, username)
+when 'user-profile'
+  username = ARGV[1]
+  DiscourseApiCurl::User.profile(request, username)
 when 'user-by-external'
   external_id = ARGV[1]
   DiscourseApiCurl::User.by_external(request, external_id)
@@ -1021,6 +1030,34 @@ when 'password-reset'
   DiscourseApiCurl::User.password_reset(request, params)
 when 'tags-list'
   DiscourseApiCurl::Tag.list(request)
+when 'badges-list'
+  DiscourseApiCurl::Badge.list(request)
+when 'badge-create'
+  name = ARGV[1]
+  badge_type_id = ARGV[2] || "2"
+  params = {
+    name: name,
+    badge_type_id: badge_type_id,
+  }
+  DiscourseApiCurl::Badge.create(request, params)
+when 'badge-get'
+  id = ARGV[1]
+  DiscourseApiCurl::Badge.get(request, id)
+when 'badge-update'
+  id = ARGV[1]
+  name = ARGV[2]
+  badge_type_id = ARGV[3] || "2"
+  params = {
+    name: name,
+    badge_type_id: badge_type_id,
+  }
+  DiscourseApiCurl::Badge.update(request, id, params)
+when 'badge-delete'
+  id = ARGV[1]
+  DiscourseApiCurl::Badge.delete(request, id)
+when 'badge-get-award'
+  id = ARGV[1]
+  DiscourseApiCurl::Badge.get_award(request, id)
 when 'embedding-add-host'
   host = ARGV[1]
   category_id = ARGV[2]
@@ -1073,4 +1110,15 @@ when 'download-backup'
   #  token: token
   #}
   #DiscourseApiCurl::Backup.download_backup(request, filename)
+  #
+when 'routes'
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/rails/info/routes" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 end
