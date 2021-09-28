@@ -81,7 +81,8 @@ when 'query-param-creds-test-bad-url'
 when 'category-rss'
   # Example: ruby app.rb category-rss
   c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/c/lounge/4.rss?api_key=#{api_key}&api_username=#{api_username}"
+    curl -i -sS -X GET "#{HOST}/c/lounge/4.rss?api_key=#{api_key}&api_username=#{api_username}" \
+    -H 'application/xhtml+xml'
   HERDOC
   puts c
   puts
@@ -1121,4 +1122,6 @@ when 'routes'
   puts c
   puts
   puts `#{c}`
+when 'site'
+  DiscourseApiCurl::Site.get(request)
 end
