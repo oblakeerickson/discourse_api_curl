@@ -519,24 +519,10 @@ when 'upload-avatar'
   #  SITE=desktop ruby app.rb upload-avatar 1 @/home/blake/tmp/boss.png
   user_id = ARGV[1]
   file = ARGV[2]
-  type = "avatar"
-  synchronous = true
-  #c = <<~HERDOC
-  #  curl -i -sS -X POST "#{HOST}/uploads.json" \
-  #  -H "Api-Key: #{api_key}" \
-  #  -H "Api-Username: #{api_username}" \
-  #  -F "file=#{file}" \
-  #  -F "type=#{type}" \
-  #  -F "user_id=#{user_id}" \
-  #  -F "synchronous=true"
-  #HERDOC
-  #puts c
-  #puts
-  #puts `#{c}`
   params = {
-    type: type,
+    type: "avatar",
     user_id: user_id,
-    synchronous: synchronous,
+    synchronous: true,
     file: file
   }
   DiscourseApiCurl::Upload.create(request, params)
@@ -549,6 +535,15 @@ when 'update-avatar'
     type: 'uploaded'
   }
   DiscourseApiCurl::User.update_avatar(request, username, params)
+when 'upload-composer'
+  #  SITE=desktop ruby app.rb upload-composer @/home/blake/tmp/boss.png
+  file = ARGV[1]
+  params = {
+    type: "composer",
+    synchronous: true,
+    file: file
+  }
+  DiscourseApiCurl::Upload.create(request, params)
 when 'update-email'
   username = ARGV[1]
   email = ARGV[2]
