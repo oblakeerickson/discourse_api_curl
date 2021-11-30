@@ -2,6 +2,7 @@ require 'json'
 
 module DiscourseApiCurl
   class Command
+    MULTIPART_FORM_DATA = 'multipart/form-data'
     def initialize(client)
       @client = client
     end
@@ -9,7 +10,7 @@ module DiscourseApiCurl
     def post(path, params = {})
       c = <<~HERDOC
         curl -i -sS -X POST "#{@client.host}#{path}" \
-        -H "Content-Type: multipart/form-data;" \
+        -H "Content-Type: #{MULTIPART_FORM_DATA}" \
         -H "Api-Key: #{@client.api_key}" \
         -H "Api-Username: #{@client.api_username}"
       HERDOC
@@ -19,7 +20,7 @@ module DiscourseApiCurl
     def put(path, params = {})
       c = <<~HERDOC
         curl -i -sS -X PUT "#{@client.host}#{path}" \
-        -H "Content-Type: multipart/form-data;" \
+        -H "Content-Type: #{MULTIPART_FORM_DATA}" \
         -H "Api-Key: #{@client.api_key}" \
         -H "Api-Username: #{@client.api_username}"
       HERDOC
@@ -47,7 +48,7 @@ module DiscourseApiCurl
     def delete(path, params = {})
       c = <<~HERDOC
         curl -i -sS -X DELETE "#{@client.host}#{path}" \
-        -H "Content-Type: multipart/form-data;" \
+        -H "Content-Type: #{MULTIPART_FORM_DATA}" \
         -H "Api-Key: #{@client.api_key}" \
         -H "Api-Username: #{@client.api_username}"
       HERDOC

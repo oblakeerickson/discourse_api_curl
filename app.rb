@@ -78,6 +78,22 @@ when 'query-param-creds-test-bad-url'
   puts c
   puts
   puts `#{c}`
+when 'login-required'
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/latest.json"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'login-required-bad-creds'
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/latest.json" \
+    -H "Api-Key: abcdefg" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'category-rss'
   # Example: ruby app.rb category-rss
   c = <<~HERDOC
