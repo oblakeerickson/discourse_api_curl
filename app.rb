@@ -1031,6 +1031,9 @@ when 'user-badges'
 when 'user-profile'
   username = ARGV[1]
   DiscourseApiCurl::User.profile(request, username)
+when 'user-emails'
+  username = ARGV[1]
+  DiscourseApiCurl::User.emails(request, username)
 when 'user-by-external'
   external_id = ARGV[1]
   DiscourseApiCurl::User.by_external(request, external_id)

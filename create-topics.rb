@@ -1,13 +1,14 @@
-topic_id = ARGV[0].to_i
+#topic_id = ARGV[0].to_i
 i = 0
 DAY = 24*60*60
-while i < 30
+while i < 300
   puts `ruby app.rb create-topic`
-  today = Time.now
-  day = today - ((i + 1)*DAY)
-  puts `ruby app.rb update-timestamp #{topic_id + 1} #{day.to_i}`
+  #today = Time.now
+  #day = today - ((i + 1)*DAY)
+  #puts `ruby app.rb update-timestamp #{topic_id + 1} #{day.to_i}`
+  #puts `ruby app.rb update-timestamp #{topic_id + 1}`
   sleep(1)
   i = i + 1
-  topic_id = topic_id + 1
+  #topic_id = topic_id + 1
 end
 

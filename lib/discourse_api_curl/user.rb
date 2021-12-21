@@ -69,7 +69,7 @@ module DiscourseApiCurl
     end
 
     def self.get(command, id)
-      request = command.get("/admin/users/#{id}.json")
+      request = command.get("/admin/users/#{id}.json?show_emails=true")
       command.exec(request)
     end
 
@@ -128,5 +128,11 @@ module DiscourseApiCurl
       request = command.get("/u/#{username}.json")
       command.exec(request)
     end
+
+    def self.emails(command, username)
+      request = command.get("/u/#{username}/emails.json")
+      command.exec(request)
+    end
+
   end
 end
