@@ -24,5 +24,12 @@ module DiscourseApiCurl
       request = command.post("/posts.json", params)
       command.exec(request)
     end
+
+    def self.delete(command, id, args = {})
+      params = DiscourseApiCurl.params(args)
+        .optional(:force_destroy)
+      request = command.delete("/posts/#{id}.json", params)
+      command.exec(request)
+    end
   end
 end

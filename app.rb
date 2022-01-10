@@ -132,6 +132,14 @@ when 'posts-latest'
 when 'posts-show'
   id = ARGV[1]
   DiscourseApiCurl::Post.show(request, id)
+when 'posts-delete'
+  id = ARGV[1]
+  force_destroy = ARGV[2]
+  if force_destroy == "force_destroy"
+    DiscourseApiCurl::Post.delete(request, id, { force_destroy: true })
+  else
+    DiscourseApiCurl::Post.delete(request, id)
+  end
 when 'posts-lock'
   id = ARGV[1]
   params = {
