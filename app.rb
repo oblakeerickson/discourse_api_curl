@@ -612,6 +612,22 @@ when 'create-topic'
     raw: raw
   }
   DiscourseApiCurl::Topic.create(request, params)
+when 'create-topic-external-id'
+  title = "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  external_id = ARGV[1]
+  params = {
+    title: title,
+    raw: raw,
+    external_id: external_id
+  }
+  DiscourseApiCurl::Topic.create(request, params)
+when 'topic-get'
+  id = ARGV[1]
+  DiscourseApiCurl::Topic.get(request, id)
+when 'topic-get-by-external-id'
+  external_id = ARGV[1]
+  DiscourseApiCurl::Topic.get_by_external_id(request, external_id)
 when 'create-closed-topic'
   title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"

@@ -3,7 +3,7 @@ module DiscourseApiCurl
     def self.create(command, args)
       params = DiscourseApiCurl.params(args)
         .required(:title, :raw)
-        .optional('tags[]', :status, :skip_validations)
+        .optional('tags[]', :status, :skip_validations, :external_id)
       request = command.post("/posts.json", params)
       command.exec(request)
     end
@@ -26,6 +26,16 @@ module DiscourseApiCurl
       params = DiscourseApiCurl.params(args)
         .optional(:time, :status_type, :based_on_last_post, :category_id)
       request = command.post("/t/#{id}/timer.json", params)
+      command.exec(request)
+    end
+
+    def self.get(command, id)
+      request = command.get("/t/#{id}.json")
+      command.exec(request)
+    end
+
+    def self.get_by_external_id(command, external_id)
+      request = command.get("/t/external_id/#{external_id}.json")
       command.exec(request)
     end
   end

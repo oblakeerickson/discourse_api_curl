@@ -29,7 +29,7 @@ module DiscourseApiCurl
 
     def get(path, params = {})
       c = <<~HERDOC
-        curl -i -sS -X GET "#{@client.host}#{path}" \
+        curl -i -sSL -X GET "#{@client.host}#{path}" \
         -H "Api-Key: #{@client.api_key}" \
         -H "Api-Username: #{@client.api_username}"
       HERDOC
