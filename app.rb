@@ -132,6 +132,9 @@ when 'posts-latest'
 when 'posts-show'
   id = ARGV[1]
   DiscourseApiCurl::Post.show(request, id)
+when 'posts-replies'
+  id = ARGV[1]
+  DiscourseApiCurl::Post.replies(request, id)
 when 'posts-delete'
   id = ARGV[1]
   force_destroy = ARGV[2]
@@ -221,16 +224,10 @@ when 'user-unsuspend'
 when 'user-update-username'
   username = ARGV[1]
   new_username = ARGV[2]
-  c = <<~HERDOC
-    curl -i -sS -X PUT "http://127.0.0.1:3000/u/#{username}/preferences/username.json" \
-    -H "Content-Type: multipart/form-data;" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "new_username=#{new_username}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  params = {
+    new_username: new_username
+  }
+  DiscourseApiCurl::User.update_username(request, username, params)
 when 'user-update-trust-level'
   user_id = ARGV[1]
   trust_level = ARGV[2]

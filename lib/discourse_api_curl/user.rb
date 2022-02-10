@@ -50,6 +50,13 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.update_username(command, username, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:new_username)
+      request = command.put("/u/#{username}/preferences/username.json", params)
+      command.exec(request)
+    end
+
     def self.suspend(command, user_id, args)
       params = DiscourseApiCurl.params(args)
         .required(:suspend_until, :reason)
