@@ -770,6 +770,24 @@ when 'create-post'
   puts c
   puts
   puts `#{c}`
+when 'create-reply-to-post'
+  # Example: ruby app.rb create-post topic_id
+  topic_id = ARGV[1]
+  reply_to_post_number = ARGV[2] || 2
+  username = ARGV[3] || api_username
+  raw = ARGV[4] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{username}" \
+    -F "raw=#{raw}" \
+    -F "topic_id=#{topic_id}" \
+    -F "reply_to_post_number=#{reply_to_post_number}" \
+    -F "archetype=regular"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'create-closed-post'
   # Example: ruby app.rb create-post topic_id
   topic_id = ARGV[1]
