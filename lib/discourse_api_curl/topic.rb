@@ -8,6 +8,14 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.update(command, id, args)
+      params = DiscourseApiCurl.params(args)
+        .optional(:title, :category_id, 'tags[]')
+      #request = command.put("/t/-/#{id}.json", params)
+      request = command.put("/t/#{id}.json", params)
+      command.exec(request)
+    end
+
     def self.set_notification_level(command, id, args)
       params = DiscourseApiCurl.params(args)
         .required(:notification_level)

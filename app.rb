@@ -835,6 +835,16 @@ when 'get-topic'
   puts c
   puts
   puts `#{c}`
+when 'get-topic-top-level-replies'
+  topic_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/t/#{topic_id}.json?filter_top_level_replies=true" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'remove-topic'
   topic_id = ARGV[1]
   c = <<~HERDOC
@@ -848,19 +858,14 @@ when 'remove-topic'
 when 'update-topic'
   # Example: ruby app.rb update-topic topic_id
   topic_id = ARGV[1]
-  title = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex}" 
-  c = <<~HERDOC
-    curl -i -sS -X PUT "#{HOST}/t/-/#{topic_id}.json" \
-    -H "Api-Key: #{api_key}" \
-    -H "Api-Username: #{api_username}" \
-    -F "title=#{title}"
-  HERDOC
-  puts c
-  puts
-  puts `#{c}`
+  title = ARGV[2] || "#{SecureRandom.hex[0..5]} #{SecureRandom.hex[0..8]} #{SecureRandom.hex[0..6]}"
+  params = {
+    title: title
+  }
+  DiscourseApiCurl::Topic.update(request, topic_id, params)
 when 'invite-to-topic'
   topic_id = ARGV[1]
-  email = ARGV[2] || "discobot" 
+  email = ARGV[2] || "discobot"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/t/#{topic_id}/invite.json" \
     -H "Api-Key: #{api_key}" \

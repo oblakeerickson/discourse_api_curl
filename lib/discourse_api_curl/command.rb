@@ -19,7 +19,7 @@ module DiscourseApiCurl
 
     def put(path, params = {})
       c = <<~HERDOC
-        curl -i -sS -X PUT "#{@client.host}#{path}" \
+        curl -i -sSL -X PUT "#{@client.host}#{path}" \
         -H "Content-Type: #{MULTIPART_FORM_DATA}" \
         -H "Api-Key: #{@client.api_key}" \
         -H "Api-Username: #{@client.api_username}"
