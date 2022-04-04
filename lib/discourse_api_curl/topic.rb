@@ -42,9 +42,24 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.get_last(command, id)
+      request = command.get("/t/#{id}/last.json")
+      command.exec(request)
+    end
+
     def self.get_by_external_id(command, external_id)
       request = command.get("/t/external_id/#{external_id}.json")
       command.exec(request)
     end
+
+    def self.posts_ids(command, id, post_ids)
+      params = {}
+      post_ids_arr = post_ids.split(',')
+      post_ids_arr.each do |post_id|
+      end
+      request = command.get("/t/#{id}/posts.json", params)
+      command.exec(request)
+    end
+
   end
 end

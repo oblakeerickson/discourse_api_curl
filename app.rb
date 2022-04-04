@@ -622,6 +622,9 @@ when 'create-topic-external-id'
 when 'topic-get'
   id = ARGV[1]
   DiscourseApiCurl::Topic.get(request, id)
+when 'topic-get-last'
+  id = ARGV[1]
+  DiscourseApiCurl::Topic.get_last(request, id)
 when 'topic-get-by-external-id'
   external_id = ARGV[1]
   DiscourseApiCurl::Topic.get_by_external_id(request, external_id)
@@ -811,16 +814,40 @@ when 'get-posts-from-topic'
   post_ids = ARGV[2]
   post_ids_arr = post_ids.split(',')
   form_data = ""
+  #  tag_data << "-F 'tags[]=#{tag}' "
   post_ids_arr.each do |id|
     form_data << "-F 'post_ids[]=#{id}' "
   end
-  puts form_data
   c = <<~HERDOC
-    curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json" \
+    curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json?asc=true&post_number=9999" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
     -F "post_ids[]=#{post_ids_arr[0]}" \
     -F "post_ids[]=#{post_ids_arr[1]}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'get-posts-from-topic-2'
+  # Example: ruby app.rb update-post post_id
+  topic_id = ARGV[1]
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'get-posts-from-topic-3'
+  # Example: ruby app.rb update-post post_id
+  topic_id = ARGV[1]
+  post_ids = ARGV[2]
+  post_ids_arr = post_ids.split(',')
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json?post_ids[]=#{post_ids_arr[0]}" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
   HERDOC
   puts c
   puts
