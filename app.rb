@@ -200,6 +200,32 @@ when 'create-user-json'
   puts c
   puts
   puts `#{c}`
+when 'chat-create-message'
+  channel = ARGV[1] || "1203"
+  message = ARGV[2] || "#{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]}"
+  params = {
+    message: message
+  }
+  DiscourseApiCurl::Chat.create(request, channel, params)
+when 'create-user-json-int-username'
+  name = ARGV[1] || SecureRandom.hex[0..19]
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}/users.json" \
+    -H "Content-Type: application/json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}" \
+    -d '{
+      "name": "#{name}",
+      "email": "#{name}@example.com",
+      "password": "#{SecureRandom.hex}",
+      "username": 124,
+      "active": true,
+      "approved": true
+    }'
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 when 'user-deactivate'
   user_id = ARGV[1]
   DiscourseApiCurl::User.deactivate(request, user_id)
