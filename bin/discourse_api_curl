@@ -1,8 +1,10 @@
+#!/usr/bin/env ruby
+
 require 'securerandom'
 require 'json'
 require 'yaml'
 require 'date'
-require_relative 'lib/discourse_api_curl'
+require_relative '../lib/discourse_api_curl'
 
 @config = YAML.load_file(File.join(Dir.home, '.discourse_api_curl.yml'))
 site = ENV['SITE']
