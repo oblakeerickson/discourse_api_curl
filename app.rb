@@ -4,7 +4,7 @@ require 'yaml'
 require 'date'
 require_relative 'lib/discourse_api_curl'
 
-@config = YAML.load_file(File.join(__dir__, 'config.yml'))
+@config = YAML.load_file(File.join(Dir.home, '.discourse_api_curl.yml'))
 site = ENV['SITE']
 
 if !site
