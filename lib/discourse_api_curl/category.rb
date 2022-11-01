@@ -13,7 +13,16 @@ module DiscourseApiCurl
     def self.create(command, args)
       params = DiscourseApiCurl.params(args)
         .required(:name)
-        .optional(:color, :text_color)
+        .optional(
+          :color,
+          :text_color,
+          :allow_badges,
+          :custom_fields,
+          :parent_category_id,
+          :search_priority,
+          :slug,
+          :topic_featured_links_allowed
+        )
 
       request = command.post("/categories.json", params)
       command.exec(request)

@@ -111,11 +111,13 @@ when 'category-rss'
   puts `#{c}`
 when 'category-create'
   name = ARGV[1] || SecureRandom.hex
+  parent_category_id = ARGV[2]
   color = "49d9e9",
   text_color = "f0fcfd"
   params = {
-    name: name
+    name: name,
   }
+  params[:parent_category_id] = parent_category_id if parent_category_id
   DiscourseApiCurl::Category.create(request, params)
 when 'category-update'
   id = ARGV[1]
