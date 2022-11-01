@@ -28,6 +28,10 @@ if !command
   exit
 end
 
+def random_text(length = 19)
+  SecureRandom.hex[0..length]
+end
+
 case command
 when 'api-key-create'
   username = ARGV[1]
@@ -288,7 +292,23 @@ when 'group'
   DiscourseApiCurl::Group.get(request, name)
 when 'group-create'
   # Example: ruby app.rb group-create name
-  params = ARGV[1] ? { 'group[name]': ARGV[1] } : {}
+  name = ARGV[1] || random_text
+  full_name = ARGV[2] || random_text
+  about = ARGV[3] || random_text
+  title = ARGV[4] || random_text
+  owner_usernames = ARGV[5]
+  members = ARGV[5]
+
+  params = {
+    name: name,
+  }
+
+  params[:full_name] = full_name if full_name
+  params[:bio_raw] = about if about
+  params[:title] = title if title
+  params[:owner_usernames] = owner_usernames if owner_usernames
+  params[:usernames] = members if members
+
   DiscourseApiCurl::Group.create(request, params)
 when 'group-delete'
   id = ARGV[1]

@@ -2,9 +2,22 @@ module DiscourseApiCurl
   class Group
     def self.create(command, args = {})
       params = DiscourseApiCurl.params(args)
-        .default('group[name]': SecureRandom.hex[0..19])
+        .default(name: SecureRandom.hex[0..19])
+        .optional(
+          :full_name,
+          :bio_raw,
+          :usernames,
+          :owner_usernames,
+          :title
+        )
 
-      request = command.post("/admin/groups.json", params)
+      h = {}
+      params.to_h.each do |k,v|
+        h["group[#{k}]"] = v
+      end
+
+      #puts params
+      request = command.post("/admin/groups.json", h)
       command.exec(request)
     end
 
