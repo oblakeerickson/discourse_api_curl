@@ -652,12 +652,16 @@ when 'create-topic-in-category'
   puts
   puts `#{c}`
 when 'create-topic'
-  title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
-  raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  category_id = ARGV[1] || '4'
+  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
+  created_at = ARGV[4] #|| "2022-10-04T19:16:29.267Z"
   params = {
+    category: category_id,
     title: title,
     raw: raw
   }
+  params[:created_at] = created_at if created_at
   DiscourseApiCurl::Topic.create(request, params)
 when 'create-topic-external-id'
   title = "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"

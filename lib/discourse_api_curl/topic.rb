@@ -3,7 +3,7 @@ module DiscourseApiCurl
     def self.create(command, args)
       params = DiscourseApiCurl.params(args)
         .required(:title, :raw)
-        .optional('tags[]', :status, :skip_validations, :external_id)
+        .optional('tags[]', :status, :skip_validations, :external_id, :created_at, :category)
       request = command.post("/posts.json", params)
       command.exec(request)
     end
