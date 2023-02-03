@@ -623,6 +623,14 @@ when 'update-email'
     email: email
   }
   DiscourseApiCurl::User.update_email(request, username, params)
+when 'delete-email'
+  username = ARGV[1]
+  email = ARGV[2]
+
+  params = {
+    email: email
+  }
+  DiscourseApiCurl::User.update_email(request, username, params)
 when 'create-topic-in-category'
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]

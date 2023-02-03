@@ -50,6 +50,13 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.delete_email(command, username, args)
+      params = DiscourseApiCurl.params(args)
+        .required(:email)
+      request = command.delete("/u/#{username}/preferences/email.json", params)
+      command.exec(request)
+    end
+
     def self.update_username(command, username, args)
       params = DiscourseApiCurl.params(args)
         .required(:new_username)

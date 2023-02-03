@@ -26,8 +26,10 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
-    def self.list(command)
-      request = command.get("/groups.json")
+    def self.list(command, args)
+      params = DiscourseApiCurl.params(args)
+        .optional(:filter, :type)
+      request = command.get("/groups.json", params)
       command.exec(request)
     end
 
