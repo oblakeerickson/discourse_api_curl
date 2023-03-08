@@ -16,7 +16,6 @@ module DiscourseApiCurl
         h["group[#{k}]"] = v
       end
 
-      #puts params
       request = command.post("/admin/groups.json", h)
       command.exec(request)
     end
@@ -26,7 +25,7 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
-    def self.list(command, args)
+    def self.list(command, args = {})
       params = DiscourseApiCurl.params(args)
         .optional(:filter, :type)
       request = command.get("/groups.json", params)
@@ -45,7 +44,7 @@ module DiscourseApiCurl
 
     def self.add_members(command, id, args)
       params = DiscourseApiCurl.params(args)
-        .optional(:usernames, :user_ids, :user_emails)
+        .optional(:usernames, :user_ids, :user_emails, :notify_users)
 
       request = command.put("/groups/#{id}/members.json", params)
       command.exec(request)

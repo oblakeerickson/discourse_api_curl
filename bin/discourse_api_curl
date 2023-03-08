@@ -305,11 +305,11 @@ when 'group-create'
     name: name,
   }
 
-  params[:full_name] = full_name if full_name
-  params[:bio_raw] = about if about
-  params[:title] = title if title
-  params[:owner_usernames] = owner_usernames if owner_usernames
-  params[:usernames] = members if members
+  #params[:full_name] = full_name if full_name
+  #params[:bio_raw] = about if about
+  #params[:title] = title if title
+  #params[:owner_usernames] = owner_usernames if owner_usernames
+  #params[:usernames] = members if members
 
   DiscourseApiCurl::Group.create(request, params)
 when 'group-delete'
@@ -347,7 +347,8 @@ when 'group-add-members'
   id = ARGV[1]
   usernames = ARGV[2] #comma separated
   params = {
-    usernames: usernames
+    usernames: usernames,
+    notify_users: true,
   }
   DiscourseApiCurl::Group.add_members(request, id, params)
 when 'group-add-members-via-email'
@@ -684,6 +685,9 @@ when 'create-topic-external-id'
 when 'topic-get'
   id = ARGV[1]
   DiscourseApiCurl::Topic.get(request, id)
+when 'topic-delete'
+  id = ARGV[1]
+  DiscourseApiCurl::Topic.delete(request, id)
 when 'topic-get-last'
   id = ARGV[1]
   DiscourseApiCurl::Topic.get_last(request, id)

@@ -42,6 +42,11 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.delete(command, id)
+      request = command.delete("/t/#{id}.json")
+      command.exec(request)
+    end
+
     def self.get_last(command, id)
       request = command.get("/t/#{id}/last.json")
       command.exec(request)
