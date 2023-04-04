@@ -1275,4 +1275,51 @@ when 'routes'
   puts `#{c}`
 when 'site'
   DiscourseApiCurl::Site.get(request)
+when 'poll-presence'
+  id = ARGV[1]
+  path = "/message-bus/#{id}/poll/presence"
+
+  c = <<~HERDOC
+    curl -i -sS -X POST "#{HOST}#{path}" \
+    -H "Content-Type: application/json" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'reactions-users'
+  post_id = ARGV[1] || 8
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/discourse-reactions/posts/#{post_id}/reactions-users.json" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'reactions-toggle'
+  post_id = ARGV[1]
+  # #<Set: {"heart", "+1", "laughing", "open_mouth", "clap", "confetti_ball", "hugs"}>
+  reactions = ["heart", "+1", "laughing", "open_mouth", "clap", "confetti_ball", "hugs"]
+  reaction = ARGV[2] || reactions[rand(0..reactions.length-1)]
+  path = "/discourse-reactions/posts/#{post_id}/custom-reactions/#{reaction}/toggle.json"
+  c = <<~HERDOC
+    curl -i -sS -X PUT "#{HOST}#{path}" \
+    -H "Content-Type: multipart/form-data;" \
+    -H "Api-Key: #{api_key}" \
+    -H "Api-Username: #{api_username}"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
+when 'reactions-users-no-auth'
+  post_id = ARGV[1] || 8
+  c = <<~HERDOC
+    curl -i -sS -X GET "#{HOST}/discourse-reactions/posts/#{post_id}/reactions-users.json"
+  HERDOC
+  puts c
+  puts
+  puts `#{c}`
 end
