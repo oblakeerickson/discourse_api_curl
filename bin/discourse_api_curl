@@ -140,6 +140,13 @@ when 'posts-latest'
 when 'posts-show'
   id = ARGV[1]
   DiscourseApiCurl::Post.show(request, id)
+when 'posts-update'
+  id = ARGV[1]
+  raw = ARGV[2] || random_text
+  params = {
+    raw: raw
+  }
+  DiscourseApiCurl::Post.update(request, id, params)
 when 'posts-replies'
   id = ARGV[1]
   DiscourseApiCurl::Post.replies(request, id)
@@ -810,6 +817,14 @@ when 'create-whisper'
     raw: raw,
   }
   DiscourseApiCurl::Post.whisper(request, params)
+when 'like'
+  # Example: ruby app.rb create-whisper topic_id
+  post_id = ARGV[1]
+  params = {
+    id: post_id,
+    post_action_type_id: 2,
+  }
+  DiscourseApiCurl::Post.like(request, params)
 when 'create-tag-group'
   # Example: ruby app.rb create-post topic_id
   name = ARGV[1] || "#{SecureRandom.hex}"
