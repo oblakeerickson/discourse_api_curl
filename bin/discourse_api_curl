@@ -994,6 +994,19 @@ when 'invite-by-email'
   puts c
   puts
   puts `#{c}`
+when 'invite-link-add-to-group-id'
+  group_ids = ARGV[1]
+  params = {
+    group_ids: group_ids
+  }
+  DiscourseApiCurl::Invite.create_link_add_to_group_by_id(request, params)
+when 'invite-perform'
+  id = ARGV[1]
+  name = ARGV[2] || SecureRandom.hex[0..19]
+  params = {
+    name: name,
+  }
+  DiscourseApiCurl::Invite.perform_accept_invite(request, id, params)
 when 'invite-by-link'
   email = ARGV[1]
   c = <<~HERDOC
@@ -1337,4 +1350,40 @@ when 'reactions-users-no-auth'
   puts c
   puts
   puts `#{c}`
+when 'session-csrf'
+  c = <<~HERDOC
+    curl -c cookies.txt -sS -X GET "#{HOST}/session/csrf" \
+    -H "User-agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0" \
+    -H "X-Requested-With: XMLHttpRequest"
+  HERDOC
+  puts c
+  puts
+  response = `#{c}`
+  puts response
+  response_json = JSON.parse(response)
+  csrf_token = response_json['csrf']
+  id = ARGV[1]
+
+  2.times.map do
+    Thread.new do
+      name = SecureRandom.hex[0..19]
+      username = name
+      email = "#{name}@example.com"
+      password = SecureRandom.hex
+      c = <<~HERDOC
+        curl -i -b cookies.txt -sS -X PUT "#{HOST}/invites/show/#{id}.json" \
+        -H "Content-Type: multipart/form-data;" \
+        -H "X-CSRF-Token: #{csrf_token}" \
+        -H "X-Requested-With: XMLHttpRequest" \
+        -F "name=#{name}" \
+        -F "username=#{username}" \
+        -F "password=#{password}" \
+        -F "email=#{email}"
+      HERDOC
+      puts c
+      puts
+      puts `#{c}`
+    end
+  end.each(&:join)
+
 end
