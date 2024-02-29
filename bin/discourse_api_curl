@@ -1,23 +1,23 @@
 #!/usr/bin/env ruby
 
-require 'securerandom'
-require 'json'
-require 'yaml'
-require 'date'
-require_relative '../lib/discourse_api_curl'
+require "securerandom"
+require "json"
+require "yaml"
+require "date"
+require_relative "../lib/discourse_api_curl"
 
-@config = YAML.load_file(File.join(Dir.home, '.discourse_api_curl.yml'))
-site = ENV['SITE']
+@config = YAML.load_file(File.join(Dir.home, ".discourse_api_curl.yml"))
+site = ENV["SITE"]
 
 if !site
   puts "Please specify a site"
   exit
 end
 
-api_key = @config[site]['api_key']
-api_username = @config[site]['api_username']
+api_key = @config[site]["api_key"]
+api_username = @config[site]["api_username"]
 
-HOST = @config[site]['host']
+HOST = @config[site]["host"]
 
 client = DiscourseApiCurl::Client.new(HOST, api_username, api_key)
 request = DiscourseApiCurl::Command.new(client)
@@ -33,7 +33,7 @@ def random_text(length = 19)
 end
 
 case command
-when 'api-key-create'
+when "api-key-create"
   username = ARGV[1]
   description = ARGV[2] || SecureRandom.hex[0..19]
   # Example: ruby app.rb api-key-create username
@@ -48,7 +48,7 @@ when 'api-key-create'
   puts c
   puts
   puts `#{c}`
-when 'mail-receiver'
+when "mail-receiver"
   # Example: ruby app.rb mail-receiver
   email = File.read("/home/blake/tmp/email.txt")
   c = <<~HERDOC
@@ -60,7 +60,7 @@ when 'mail-receiver'
   puts c
   puts
   puts `#{c}`
-when 'query-param-creds-test'
+when "query-param-creds-test"
   # Example: ruby app.rb query-param-creds-test
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/admin/users/list/active.json?api_key=#{api_key}&api_username=#{api_username}"
@@ -68,7 +68,7 @@ when 'query-param-creds-test'
   puts c
   puts
   puts `#{c}`
-when 'query-param-creds-test-2'
+when "query-param-creds-test-2"
   # Example: ruby app.rb query-param-creds-test
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/admin/users/list/active.json?api_key=#{api_key}"
@@ -76,7 +76,7 @@ when 'query-param-creds-test-2'
   puts c
   puts
   puts `#{c}`
-when 'query-param-creds-test-bad-url'
+when "query-param-creds-test-bad-url"
   # Example: ruby app.rb query-param-creds-test
   c = <<~HERDOC
     curl -i -sS -D - -X GET "#{HOST}/bad-url.json?api_key=#{api_key}&api_username=#{api_username}"
@@ -84,14 +84,14 @@ when 'query-param-creds-test-bad-url'
   puts c
   puts
   puts `#{c}`
-when 'login-required'
+when "login-required"
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/latest.json"
   HERDOC
   puts c
   puts
   puts `#{c}`
-when 'login-required-bad-creds'
+when "login-required-bad-creds"
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/latest.json" \
     -H "Api-Key: abcdefg" \
@@ -100,7 +100,7 @@ when 'login-required-bad-creds'
   puts c
   puts
   puts `#{c}`
-when 'category-rss'
+when "category-rss"
   # Example: ruby app.rb category-rss
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/c/lounge/4.rss?api_key=#{api_key}&api_username=#{api_username}" \
@@ -109,48 +109,41 @@ when 'category-rss'
   puts c
   puts
   puts `#{c}`
-when 'category-create'
+when "category-create"
   name = ARGV[1] || SecureRandom.hex
   parent_category_id = ARGV[2]
-  color = "49d9e9",
-  text_color = "f0fcfd"
-  params = {
-    name: name,
-  }
+  color = "49d9e9", text_color = "f0fcfd"
+  params = { name: name }
   params[:parent_category_id] = parent_category_id if parent_category_id
   DiscourseApiCurl::Category.create(request, params)
-when 'category-update'
+when "category-update"
   id = ARGV[1]
   name = ARGV[2] || SecureRandom.hex
-  params = {
-    name: name
-  }
+  params = { name: name }
   DiscourseApiCurl::Category.update(request, id, params)
-when 'category-list'
+when "category-list"
   DiscourseApiCurl::Category.list(request)
-when 'category-show'
+when "category-show"
   id = ARGV[1]
   DiscourseApiCurl::Category.show(request, id)
-when 'category-topics'
+when "category-topics"
   slug = ARGV[1]
   id = ARGV[2]
   DiscourseApiCurl::Category.topics(request, slug, id)
-when 'posts-latest'
+when "posts-latest"
   DiscourseApiCurl::Post.latest(request)
-when 'posts-show'
+when "posts-show"
   id = ARGV[1]
   DiscourseApiCurl::Post.show(request, id)
-when 'posts-update'
+when "posts-update"
   id = ARGV[1]
   raw = ARGV[2] || random_text
-  params = {
-    raw: raw
-  }
+  params = { raw: raw }
   DiscourseApiCurl::Post.update(request, id, params)
-when 'posts-replies'
+when "posts-replies"
   id = ARGV[1]
   DiscourseApiCurl::Post.replies(request, id)
-when 'posts-delete'
+when "posts-delete"
   id = ARGV[1]
   force_destroy = ARGV[2]
   if force_destroy == "force_destroy"
@@ -158,19 +151,15 @@ when 'posts-delete'
   else
     DiscourseApiCurl::Post.delete(request, id)
   end
-when 'posts-lock'
+when "posts-lock"
   id = ARGV[1]
-  params = {
-    locked: true
-  }
+  params = { locked: true }
   DiscourseApiCurl::Post.locked(request, id, params)
-when 'posts-unlock'
+when "posts-unlock"
   id = ARGV[1]
-  params = {
-    locked: false
-  }
+  params = { locked: false }
   DiscourseApiCurl::Post.locked(request, id, params)
-when 'category-create2'
+when "category-create2"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/categories" \
     -H "Content-Type: multipart/form-data;" \
@@ -184,21 +173,19 @@ when 'category-create2'
   puts c
   puts
   puts `#{c}`
-when 'user-create'
+when "user-create"
   name = ARGV[1] || SecureRandom.hex[0..19]
   active = ARGV[2] || true
-  params = {
-    name: name,
-    active: active,
-  }
+  params = { name: name, active: active }
   DiscourseApiCurl::User.create(request, params)
-when 'create-user-json'
+when "create-user-json"
   name = ARGV[1] || SecureRandom.hex[0..19]
   active = "true"
   username = name
   email = "#{name}@example.com"
   password = SecureRandom.hex
-  data = "{\\\"name\\\": \\\"#{name}\\\", \\\"active\\\": \\\"#{active}\\\", \\\"username\\\": \\\"#{username}\\\", \\\"email\\\": \\\"#{email}\\\", \\\"password\\\": \\\"#{password}\\\"}"
+  data =
+    "{\\\"name\\\": \\\"#{name}\\\", \\\"active\\\": \\\"#{active}\\\", \\\"username\\\": \\\"#{username}\\\", \\\"email\\\": \\\"#{email}\\\", \\\"password\\\": \\\"#{password}\\\"}"
   puts data
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/users.json" \
@@ -215,14 +202,14 @@ when 'create-user-json'
   puts c
   puts
   puts `#{c}`
-when 'chat-create-message'
+when "chat-create-message"
   channel = ARGV[1] || "1203"
-  message = ARGV[2] || "#{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]}"
-  params = {
-    message: message
-  }
+  message =
+    ARGV[2] ||
+      "#{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]}"
+  params = { message: message }
   DiscourseApiCurl::Chat.create(request, channel, params)
-when 'create-user-json-int-username'
+when "create-user-json-int-username"
   name = ARGV[1] || SecureRandom.hex[0..19]
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/users.json" \
@@ -241,35 +228,30 @@ when 'create-user-json-int-username'
   puts c
   puts
   puts `#{c}`
-when 'user-deactivate'
+when "user-deactivate"
   user_id = ARGV[1]
   DiscourseApiCurl::User.deactivate(request, user_id)
-when 'user-activate'
+when "user-activate"
   user_id = ARGV[1]
   DiscourseApiCurl::User.activate(request, user_id)
-when 'user-suspend'
+when "user-suspend"
   user_id = ARGV[1]
-  suspend_until = ARGV[2]# || (Date.today + 10)
-  reason = ARGV[3]# || SecureRandom.hex
+  suspend_until = ARGV[2] # || (Date.today + 10)
+  reason = ARGV[3] # || SecureRandom.hex
   message = ARGV[4]
-  params = {
-    suspend_until: suspend_until,
-    reason: reason
-  }
+  params = { suspend_until: suspend_until, reason: reason }
   params[:message] = message if message
 
   DiscourseApiCurl::User.suspend(request, user_id, params)
-when 'user-unsuspend'
+when "user-unsuspend"
   user_id = ARGV[1]
   DiscourseApiCurl::User.unsuspend(request, user_id)
-when 'user-update-username'
+when "user-update-username"
   username = ARGV[1]
   new_username = ARGV[2]
-  params = {
-    new_username: new_username
-  }
+  params = { new_username: new_username }
   DiscourseApiCurl::User.update_username(request, username, params)
-when 'user-update-trust-level'
+when "user-update-trust-level"
   user_id = ARGV[1]
   trust_level = ARGV[2]
   c = <<~HERDOC
@@ -282,24 +264,20 @@ when 'user-update-trust-level'
   puts c
   puts
   puts `#{c}`
-when 'user-update'
+when "user-update"
   # Example: ruby app.rb user-update name title
   username = ARGV[1]
   name = ARGV[2] || SecureRandom.hex[0..19]
   title = ARGV[3]
-  params = {
-    name: name
-  }
-  if title
-    params[:title] = title
-  end
+  params = { name: name }
+  params[:title] = title if title
   DiscourseApiCurl::User.update(request, username, params)
-when 'groups-list'
+when "groups-list"
   DiscourseApiCurl::Group.list(request)
-when 'group'
+when "group"
   name = ARGV[1]
   DiscourseApiCurl::Group.get(request, name)
-when 'group-create'
+when "group-create"
   # Example: ruby app.rb group-create name
   name = ARGV[1] || random_text
   full_name = ARGV[2] || random_text
@@ -308,9 +286,7 @@ when 'group-create'
   owner_usernames = ARGV[5]
   members = ARGV[5]
 
-  params = {
-    name: name,
-  }
+  params = { name: name }
 
   #params[:full_name] = full_name if full_name
   #params[:bio_raw] = about if about
@@ -319,10 +295,10 @@ when 'group-create'
   #params[:usernames] = members if members
 
   DiscourseApiCurl::Group.create(request, params)
-when 'group-delete'
+when "group-delete"
   id = ARGV[1]
   DiscourseApiCurl::Group.delete(request, id)
-when 'group-update'
+when "group-update"
   # Example: ruby app.rb group-create name
   id = ARGV[1]
   group_name = ARGV[2] || SecureRandom.hex[0..19]
@@ -336,7 +312,7 @@ when 'group-update'
   puts c
   puts
   puts `#{c}`
-when 'group-add-members-ids'
+when "group-add-members-ids"
   # Example: ruby app.rb group-add-members_ids 41 2,3
   group_id = ARGV[1]
   user_ids = ARGV[2] #comma separated
@@ -350,15 +326,12 @@ when 'group-add-members-ids'
   puts c
   puts
   puts `#{c}`
-when 'group-add-members'
+when "group-add-members"
   id = ARGV[1]
   usernames = ARGV[2] #comma separated
-  params = {
-    usernames: usernames,
-    notify_users: true,
-  }
+  params = { usernames: usernames, notify_users: true }
   DiscourseApiCurl::Group.add_members(request, id, params)
-when 'group-add-members-via-email'
+when "group-add-members-via-email"
   # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
   group_id = ARGV[1]
   user_emails = ARGV[2] #comma separated
@@ -372,10 +345,10 @@ when 'group-add-members-via-email'
   puts c
   puts
   puts `#{c}`
-when 'group-list-members'
+when "group-list-members"
   name = ARGV[1]
   DiscourseApiCurl::Group.list_members(request, name)
-when 'group-remove-members-via-email'
+when "group-remove-members-via-email"
   # Example: ruby app.rb group-add-members-via-email 41 asdf,fdsg
   group_id = ARGV[1]
   user_emails = ARGV[2] #comma separated
@@ -389,7 +362,7 @@ when 'group-remove-members-via-email'
   puts c
   puts
   puts `#{c}`
-when 'group-add-members-via-admin'
+when "group-add-members-via-admin"
   # Example: ruby app.rb group-add-members-via-admin 41 asdf,fdsg
   group_id = ARGV[1]
   usernames = ARGV[2] #comma separated
@@ -403,7 +376,7 @@ when 'group-add-members-via-admin'
   puts c
   puts
   puts `#{c}`
-when 'group-add-owners'
+when "group-add-owners"
   # Example: ruby app.rb group-add-members 41 asdf,fdsg
   group_id = ARGV[1]
   usernames = ARGV[2] #comma separated
@@ -417,14 +390,12 @@ when 'group-add-owners'
   puts c
   puts
   puts `#{c}`
-when 'group-remove-members'
+when "group-remove-members"
   id = ARGV[1]
   usernames = ARGV[2] #comma separated
-  params = {
-    usernames: usernames
-  }
+  params = { usernames: usernames }
   DiscourseApiCurl::Group.remove_members(request, id, params)
-when 'update-site-setting'
+when "update-site-setting"
   # Example: ruby app.rb update-site-setting name value
   name = ARGV[1]
   value = ARGV[2]
@@ -438,7 +409,7 @@ when 'update-site-setting'
   puts c
   puts
   puts `#{c}`
-when 'get-site-settings'
+when "get-site-settings"
   # Example: ruby app.rb get-site-settings
   name = ARGV[1]
   value = ARGV[2]
@@ -451,7 +422,7 @@ when 'get-site-settings'
   puts c
   puts
   puts `#{c}`
-when 'directory-items'
+when "directory-items"
   # Example: ruby app.rb directory-items
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/directory_items.json?period=weekly&order=likes_received" \
@@ -461,7 +432,7 @@ when 'directory-items'
   puts c
   puts
   puts `#{c}`
-when 'directory-items-delete'
+when "directory-items-delete"
   # Example: ruby app.rb directory-items
   id = ARGV[1]
   c = <<~HERDOC
@@ -472,7 +443,7 @@ when 'directory-items-delete'
   puts c
   puts
   puts `#{c}`
-when 'timed-topic-create'
+when "timed-topic-create"
   # Example: ruby app.rb timed-topic-create 41 2019-01-17+08:00-07:00 publish_to_category 1
   topic_id = ARGV[1]
   time = ARGV[2]
@@ -490,17 +461,17 @@ when 'timed-topic-create'
   puts c
   puts
   puts `#{c}`
-when 'notification-create'
+when "notification-create"
   notification_type = ARGV[1] || "liked"
   data = ARGV[2] || {}
   user_id = ARGV[3] || -1
   params = {
     notification_type: notification_type,
     data: data,
-    user_id: user_id,
+    user_id: user_id
   }
   DiscourseApiCurl::Notification.create(request, params)
-when 'notifications'
+when "notifications"
   # Example: ruby app.rb notifications username
   username = ARGV[1]
   c = <<~HERDOC
@@ -511,7 +482,7 @@ when 'notifications'
   puts c
   puts
   puts `#{c}`
-when 'notifications-mark-read'
+when "notifications-mark-read"
   # Example: ruby app.rb notifications-mark-read id username
   id = ARGV[1]
   api_username = ARGV[2]
@@ -524,7 +495,7 @@ when 'notifications-mark-read'
   puts c
   puts
   puts `#{c}`
-when 'notifications-mark-all-read'
+when "notifications-mark-all-read"
   # Example: ruby app.rb notifications-mark-all-read username
   api_username = ARGV[1]
   c = <<~HERDOC
@@ -535,7 +506,7 @@ when 'notifications-mark-all-read'
   puts c
   puts
   puts `#{c}`
-when 'unread-notifications'
+when "unread-notifications"
   # Example: ruby app.rb unread-notifications username
   api_username = ARGV[1]
   c = <<~HERDOC
@@ -546,7 +517,7 @@ when 'unread-notifications'
   puts c
   puts
   puts `#{c}`
-when 'unread'
+when "unread"
   # Example: ruby app.rb unread username
   api_username = ARGV[1]
   c = <<~HERDOC
@@ -557,11 +528,13 @@ when 'unread'
   puts c
   puts
   puts `#{c}`
-when 'create-pm'
+when "create-pm"
   # Example: ruby app.rb create-pm target_usernames title raw
   target_usernames = ARGV[1]
   title = ARGV[2] || SecureRandom.hex[0..19]
-  raw = ARGV[3] || "#{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]}"
+  raw =
+    ARGV[3] ||
+      "#{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]} #{SecureRandom.hex[0..19]}"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
     -H "Api-Key: #{api_key}" \
@@ -574,7 +547,7 @@ when 'create-pm'
   puts c
   puts
   puts `#{c}`
-when 'get-pms'
+when "get-pms"
   username = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/topics/private-messages/#{username}.json" \
@@ -584,7 +557,7 @@ when 'get-pms'
   puts c
   puts
   puts `#{c}`
-when 'get-pms-sent'
+when "get-pms-sent"
   username = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/topics/private-messages-sent/#{username}.json" \
@@ -594,55 +567,41 @@ when 'get-pms-sent'
   puts c
   puts
   puts `#{c}`
-when 'upload-avatar'
+when "upload-avatar"
   #  SITE=desktop ruby app.rb upload-avatar 1 @/home/blake/tmp/boss.png
   user_id = ARGV[1]
   file = ARGV[2]
-  params = {
-    type: "avatar",
-    user_id: user_id,
-    synchronous: true,
-    file: file
-  }
+  params = { type: "avatar", user_id: user_id, synchronous: true, file: file }
   DiscourseApiCurl::Upload.create(request, params)
-when 'update-avatar'
+when "update-avatar"
   username = ARGV[1]
   upload_id = ARGV[2]
 
-  params = {
-    upload_id: upload_id,
-    type: 'uploaded'
-  }
+  params = { upload_id: upload_id, type: "uploaded" }
   DiscourseApiCurl::User.update_avatar(request, username, params)
-when 'upload-composer'
+when "upload-composer"
   #  SITE=desktop ruby app.rb upload-composer @/home/blake/tmp/boss.png
   file = ARGV[1]
-  params = {
-    type: "composer",
-    synchronous: true,
-    file: file
-  }
+  params = { type: "composer", synchronous: true, file: file }
   DiscourseApiCurl::Upload.create(request, params)
-when 'update-email'
+when "update-email"
   username = ARGV[1]
   email = ARGV[2]
 
-  params = {
-    email: email
-  }
+  params = { email: email }
   DiscourseApiCurl::User.update_email(request, username, params)
-when 'delete-email'
+when "delete-email"
   username = ARGV[1]
   email = ARGV[2]
 
-  params = {
-    email: email
-  }
+  params = { email: email }
   DiscourseApiCurl::User.update_email(request, username, params)
-when 'create-topic-in-category'
+when "create-topic-in-category"
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  title =
+    ARGV[2] ||
+      "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   if ARGV[3] == nil || ARGV[3] == "" || ARGV[3].length == 0
     raw = "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   else
@@ -667,60 +626,51 @@ when 'create-topic-in-category'
   puts c
   puts
   puts `#{c}`
-when 'create-topic'
-  category_id = ARGV[1] || '4'
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+when "create-topic"
+  category_id = ARGV[1] || "4"
+  title =
+    ARGV[2] ||
+      "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   created_at = ARGV[4] #|| "2022-10-04T19:16:29.267Z"
-  params = {
-    category: category_id,
-    title: title,
-    raw: raw
-  }
+  params = { category: category_id, title: title, raw: raw }
   params[:created_at] = created_at if created_at
   DiscourseApiCurl::Topic.create(request, params)
-when 'create-topic-external-id'
-  title = "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+when "create-topic-external-id"
+  title =
+    "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   external_id = ARGV[1]
-  params = {
-    title: title,
-    raw: raw,
-    external_id: external_id
-  }
+  params = { title: title, raw: raw, external_id: external_id }
   DiscourseApiCurl::Topic.create(request, params)
-when 'topic-get'
+when "topic-get"
   id = ARGV[1]
   DiscourseApiCurl::Topic.get(request, id)
-when 'topic-delete'
+when "topic-delete"
   id = ARGV[1]
   DiscourseApiCurl::Topic.delete(request, id)
-when 'topic-get-last'
+when "topic-get-last"
   id = ARGV[1]
   DiscourseApiCurl::Topic.get_last(request, id)
-when 'topic-get-by-external-id'
+when "topic-get-by-external-id"
   external_id = ARGV[1]
   DiscourseApiCurl::Topic.get_by_external_id(request, external_id)
-when 'create-closed-topic'
-  title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+when "create-closed-topic"
+  title =
+    ARGV[1] ||
+      "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  params = {
-    title: title,
-    raw: raw,
-    status: "closed",
-  }
+  params = { title: title, raw: raw, status: "closed" }
   DiscourseApiCurl::Topic.create(request, params)
-when 'create-topic-with-tags'
-  title = ARGV[1] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+when "create-topic-with-tags"
+  title =
+    ARGV[1] ||
+      "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   tags = ARGV[3] || "#{SecureRandom.hex[0..7]},#{SecureRandom.hex[0..7]}"
-  params = {
-    title: title,
-    raw: raw,
-    'tags[]' => tags
-  }
+  params = { :title => title, :raw => raw, "tags[]" => tags }
   DiscourseApiCurl::Topic.create(request, params)
-when 'top-topics'
+when "top-topics"
   # Example: ruby app.rb top-topics
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/top.json" \
@@ -730,8 +680,8 @@ when 'top-topics'
   puts c
   puts
   puts `#{c}`
-when 'top-topics-flag'
-  flag = ARGV[1] || 'all'
+when "top-topics-flag"
+  flag = ARGV[1] || "all"
   # Example: ruby app.rb top-topics
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/top/#{flag}.json" \
@@ -741,7 +691,7 @@ when 'top-topics-flag'
   puts c
   puts
   puts `#{c}`
-when 'latest-topics'
+when "latest-topics"
   # Example: ruby app.rb latest-topics
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/latest.json" \
@@ -751,12 +701,15 @@ when 'latest-topics'
   puts c
   puts
   puts `#{c}`
-when 'create-topic-json'
+when "create-topic-json"
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1] || "3"
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  title =
+    ARGV[2] ||
+      "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  data = "{\\\"title\\\": \\\"#{title}\\\", \\\"category\\\": \\\"#{category_id}\\\", \\\"raw\\\": \\\"#{raw}\\\"}"
+  data =
+    "{\\\"title\\\": \\\"#{title}\\\", \\\"category\\\": \\\"#{category_id}\\\", \\\"raw\\\": \\\"#{raw}\\\"}"
   puts data
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
@@ -768,7 +721,7 @@ when 'create-topic-json'
   puts c
   puts
   puts `#{c}`
-when 'create-user-field'
+when "create-user-field"
   # Example: ruby app.rb create-topic title category_id raw
   name = ARGV[1] || "#{SecureRandom.hex[0..10]}"
   description = ARGV[2] || "#{SecureRandom.hex}"
@@ -789,14 +742,15 @@ when 'create-user-field'
   puts c
   puts
   puts `#{c}`
-when 'create-user-field-json'
+when "create-user-field-json"
   # Example: ruby app.rb create-topic title category_id raw
   name = ARGV[1] || "#{SecureRandom.hex[0..10]}"
   description = ARGV[2] || "#{SecureRandom.hex}"
   field_type = ARGV[3] || "text"
   required = ARGV[4] || "false"
 
-  data = "{\\\"user_field\\\": { \\\"name\\\": \\\"#{name}\\\", \\\"description\\\": \\\"#{description}\\\", \\\"field_type\\\": \\\"#{field_type}\\\", \\\"required\\\": \\\"#{required}\\\"}}"
+  data =
+    "{\\\"user_field\\\": { \\\"name\\\": \\\"#{name}\\\", \\\"description\\\": \\\"#{description}\\\", \\\"field_type\\\": \\\"#{field_type}\\\", \\\"required\\\": \\\"#{required}\\\"}}"
   puts data
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/admin/customize/user_fields.json" \
@@ -808,24 +762,18 @@ when 'create-user-field-json'
   puts c
   puts
   puts `#{c}`
-when 'create-whisper'
+when "create-whisper"
   # Example: ruby app.rb create-whisper topic_id
   topic_id = ARGV[1]
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
-  params = {
-    topic_id: topic_id,
-    raw: raw,
-  }
+  params = { topic_id: topic_id, raw: raw }
   DiscourseApiCurl::Post.whisper(request, params)
-when 'like'
+when "like"
   # Example: ruby app.rb create-whisper topic_id
   post_id = ARGV[1]
-  params = {
-    id: post_id,
-    post_action_type_id: 2,
-  }
+  params = { id: post_id, post_action_type_id: 2 }
   DiscourseApiCurl::Post.like(request, params)
-when 'create-tag-group'
+when "create-tag-group"
   # Example: ruby app.rb create-post topic_id
   name = ARGV[1] || "#{SecureRandom.hex}"
   tag = ARGV[2] || "#{SecureRandom.hex}"
@@ -838,7 +786,7 @@ when 'create-tag-group'
   puts c
   puts
   puts `#{c}`
-when 'create-post'
+when "create-post"
   # Example: ruby app.rb create-post topic_id
   topic_id = ARGV[1]
   username = ARGV[2] || api_username
@@ -854,7 +802,7 @@ when 'create-post'
   puts c
   puts
   puts `#{c}`
-when 'create-reply-to-post'
+when "create-reply-to-post"
   # Example: ruby app.rb create-post topic_id
   topic_id = ARGV[1]
   reply_to_post_number = ARGV[2] || 2
@@ -872,7 +820,7 @@ when 'create-reply-to-post'
   puts c
   puts
   puts `#{c}`
-when 'create-closed-post'
+when "create-closed-post"
   # Example: ruby app.rb create-post topic_id
   topic_id = ARGV[1]
   username = ARGV[2] || api_username
@@ -889,16 +837,14 @@ when 'create-closed-post'
   puts c
   puts
   puts `#{c}`
-when 'get-posts-from-topic'
+when "get-posts-from-topic"
   # Example: ruby app.rb update-post post_id
   topic_id = ARGV[1]
   post_ids = ARGV[2]
-  post_ids_arr = post_ids.split(',')
+  post_ids_arr = post_ids.split(",")
   form_data = ""
   #  tag_data << "-F 'tags[]=#{tag}' "
-  post_ids_arr.each do |id|
-    form_data << "-F 'post_ids[]=#{id}' "
-  end
+  post_ids_arr.each { |id| form_data << "-F 'post_ids[]=#{id}' " }
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json?asc=true&post_number=9999" \
     -H "Api-Key: #{api_key}" \
@@ -909,7 +855,7 @@ when 'get-posts-from-topic'
   puts c
   puts
   puts `#{c}`
-when 'get-posts-from-topic-2'
+when "get-posts-from-topic-2"
   # Example: ruby app.rb update-post post_id
   topic_id = ARGV[1]
   c = <<~HERDOC
@@ -920,11 +866,11 @@ when 'get-posts-from-topic-2'
   puts c
   puts
   puts `#{c}`
-when 'get-posts-from-topic-3'
+when "get-posts-from-topic-3"
   # Example: ruby app.rb update-post post_id
   topic_id = ARGV[1]
   post_ids = ARGV[2]
-  post_ids_arr = post_ids.split(',')
+  post_ids_arr = post_ids.split(",")
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/t/#{topic_id}/posts.json?post_ids[]=#{post_ids_arr[0]}" \
     -H "Api-Key: #{api_key}" \
@@ -933,7 +879,7 @@ when 'get-posts-from-topic-3'
   puts c
   puts
   puts `#{c}`
-when 'get-topic'
+when "get-topic"
   topic_id = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/t/#{topic_id}.json" \
@@ -943,7 +889,7 @@ when 'get-topic'
   puts c
   puts
   puts `#{c}`
-when 'get-topic-top-level-replies'
+when "get-topic-top-level-replies"
   topic_id = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/t/#{topic_id}.json?filter_top_level_replies=true" \
@@ -953,7 +899,7 @@ when 'get-topic-top-level-replies'
   puts c
   puts
   puts `#{c}`
-when 'remove-topic'
+when "remove-topic"
   topic_id = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X DELETE "#{HOST}/t/#{topic_id}.json" \
@@ -963,15 +909,15 @@ when 'remove-topic'
   puts c
   puts
   puts `#{c}`
-when 'update-topic'
+when "update-topic"
   # Example: ruby app.rb update-topic topic_id
   topic_id = ARGV[1]
-  title = ARGV[2] || "#{SecureRandom.hex[0..5]} #{SecureRandom.hex[0..8]} #{SecureRandom.hex[0..6]}"
-  params = {
-    title: title
-  }
+  title =
+    ARGV[2] ||
+      "#{SecureRandom.hex[0..5]} #{SecureRandom.hex[0..8]} #{SecureRandom.hex[0..6]}"
+  params = { title: title }
   DiscourseApiCurl::Topic.update(request, topic_id, params)
-when 'invite-to-topic'
+when "invite-to-topic"
   topic_id = ARGV[1]
   email = ARGV[2] || "discobot"
   c = <<~HERDOC
@@ -983,31 +929,35 @@ when 'invite-to-topic'
   puts c
   puts
   puts `#{c}`
-when 'invite-by-email'
+when "invite-by-email"
   email = ARGV[1]
+  params = {email: email}
+  DiscourseApiCurl::Invite.by_email(request, params)
+when "invite-by-emails"
+  emails = ARGV[1].split(",")
+  params = {email: emails}
+  #DiscourseApiCurl::Invite.by_email(request, params)
+  #email = ARGV[2] || "discobot"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/invites.json" \
     -H "Api-Key: #{api_key}" \
     -H "Api-Username: #{api_username}" \
-    -F "email=#{email}"
+    -F "email[]=#{emails[0]}" \
+    -F "email[]=#{emails[1]}"
   HERDOC
   puts c
   puts
   puts `#{c}`
-when 'invite-link-add-to-group-id'
+when "invite-link-add-to-group-id"
   group_ids = ARGV[1]
-  params = {
-    group_ids: group_ids
-  }
+  params = { group_ids: group_ids }
   DiscourseApiCurl::Invite.create_link_add_to_group_by_id(request, params)
-when 'invite-perform'
+when "invite-perform"
   id = ARGV[1]
   name = ARGV[2] || SecureRandom.hex[0..19]
-  params = {
-    name: name,
-  }
+  params = { name: name }
   DiscourseApiCurl::Invite.perform_accept_invite(request, id, params)
-when 'invite-by-link'
+when "invite-by-link"
   email = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/invites/link.json" \
@@ -1018,7 +968,7 @@ when 'invite-by-link'
   puts c
   puts
   puts `#{c}`
-when 'bookmark-topic'
+when "bookmark-topic"
   # Example: ruby app.rb bookmark-topic topic_id
   topic_id = ARGV[1]
   c = <<~HERDOC
@@ -1029,7 +979,7 @@ when 'bookmark-topic'
   puts c
   puts
   puts `#{c}`
-when 'update-topic-status'
+when "update-topic-status"
   # Example: ruby app.rb update-topic-status topic_id
   topic_id = ARGV[1]
   status = ARGV[2] || "closed"
@@ -1044,7 +994,7 @@ when 'update-topic-status'
   puts c
   puts
   puts `#{c}`
-when 'update-post'
+when "update-post"
   # Example: ruby app.rb update-post post_id
   post_id = ARGV[1]
   raw = ARGV[2] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
@@ -1059,16 +1009,14 @@ when 'update-post'
   puts c
   puts
   puts `#{c}`
-when 'change-owner'
+when "change-owner"
   # Example: ruby app.rb change-owner topic_id username 1,2,3,4,5
   topic_id = ARGV[1]
   username = ARGV[2]
   post_ids = ARGV[3]
-  post_ids_arr = post_ids.split(',')
+  post_ids_arr = post_ids.split(",")
   form_data = ""
-  post_ids_arr.each do |id|
-    form_data << "-F 'post_ids[]=#{id}' "
-  end
+  post_ids_arr.each { |id| form_data << "-F 'post_ids[]=#{id}' " }
   puts form_data
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/t/#{topic_id}/change-owner.json" \
@@ -1082,10 +1030,12 @@ when 'change-owner'
   puts c
   puts
   puts `#{c}`
-when 'create-shared-draft'
+when "create-shared-draft"
   # Example: ruby app.rb create-topic title category_id raw
   category_id = ARGV[1]
-  title = ARGV[2] || "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
+  title =
+    ARGV[2] ||
+      "#{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]} #{SecureRandom.hex[0..10]}"
   raw = ARGV[3] || "#{SecureRandom.hex} #{SecureRandom.hex} #{SecureRandom.hex}"
   c = <<~HERDOC
     curl -i -sS -X POST "#{HOST}/posts.json" \
@@ -1099,7 +1049,7 @@ when 'create-shared-draft'
   puts c
   puts
   puts `#{c}`
-when 'search'
+when "search"
   # Example: ruby app.rb get-site-settings
   query = ARGV[1]
   #c = <<~HERDOC
@@ -1112,14 +1062,14 @@ when 'search'
   #puts
   #puts `#{c}`
   DiscourseApiCurl::Search.q(request, query)
-when 'canned-replies-anonymous'
+when "canned-replies-anonymous"
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/canned_replies"
   HERDOC
   puts c
   puts
   puts `#{c}`
-when 'canned-replies'
+when "canned-replies"
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/canned_replies" \
     -H "Content-Type: multipart/form-data;" \
@@ -1129,7 +1079,7 @@ when 'canned-replies'
   puts c
   puts
   puts `#{c}`
-when 'canned-replies-delete-as-user'
+when "canned-replies-delete-as-user"
   id = ARGV[1]
   c = <<~HERDOC
     curl -i -sS -X DELETE "#{HOST}/canned_replies/#{id}" \
@@ -1140,115 +1090,94 @@ when 'canned-replies-delete-as-user'
   puts c
   puts
   puts `#{c}`
-when 'set-notification-level'
+when "set-notification-level"
   id = ARGV[1]
-  level = ARGV[2] || '0'
-  params = {
-    notification_level: level,
-  }
+  level = ARGV[2] || "0"
+  params = { notification_level: level }
   DiscourseApiCurl::Topic.set_notification_level(request, id, params)
-when 'update-timestamp'
+when "update-timestamp"
   id = ARGV[1]
-  timestamp = ARGV[2] || '1594291380'
-  params = {
-    timestamp: timestamp,
-  }
+  timestamp = ARGV[2] || "1594291380"
+  params = { timestamp: timestamp }
   DiscourseApiCurl::Topic.update_timestamp(request, id, params)
-when 'create-timer'
+when "create-timer"
   id = ARGV[1]
-  timer = ARGV[2] || '1594291380'
-  params = {
-    timestamp: timestamp,
-  }
+  timer = ARGV[2] || "1594291380"
+  params = { timestamp: timestamp }
   DiscourseApiCurl::Topic.update_timestamp(request, id, params)
-when 'user-public-get'
+when "user-public-get"
   username = ARGV[1]
   DiscourseApiCurl::User.public_get(request, username)
-when 'user-get'
+when "user-get"
   id = ARGV[1]
   DiscourseApiCurl::User.get(request, id)
-when 'user-list'
+when "user-list"
   flag = ARGV[1]
   DiscourseApiCurl::User.list(request, flag)
-when 'log-out'
+when "log-out"
   id = ARGV[1]
   DiscourseApiCurl::User.log_out(request, id)
-when 'refresh-gravatar'
+when "refresh-gravatar"
   username = ARGV[1]
   DiscourseApiCurl::User.refresh_gravatar(request, username)
-when 'user-actions'
+when "user-actions"
   username = ARGV[1]
-  params = {
-    username: username,
-    filter: "4,5",
-    offset: 0
-  }
+  params = { username: username, filter: "4,5", offset: 0 }
   DiscourseApiCurl::User.user_actions(request, params)
-when 'user-delete'
+when "user-delete"
   id = ARGV[1]
   DiscourseApiCurl::User.delete(request, id)
-when 'user-anonymize'
+when "user-anonymize"
   id = ARGV[1]
   DiscourseApiCurl::User.anonymize(request, id)
-when 'user-badges'
+when "user-badges"
   username = ARGV[1]
   DiscourseApiCurl::User.user_badges(request, username)
-when 'user-profile'
+when "user-profile"
   username = ARGV[1]
   DiscourseApiCurl::User.profile(request, username)
-when 'user-emails'
+when "user-emails"
   username = ARGV[1]
   DiscourseApiCurl::User.emails(request, username)
-when 'user-by-external'
+when "user-by-external"
   external_id = ARGV[1]
   DiscourseApiCurl::User.by_external(request, external_id)
-when 'password-reset'
+when "password-reset"
   username = ARGV[1]
-  params = {
-    login: username
-  }
+  params = { login: username }
   DiscourseApiCurl::User.password_reset(request, params)
-when 'tags-list'
+when "tags-list"
   DiscourseApiCurl::Tag.list(request)
-when 'badges-list'
+when "badges-list"
   DiscourseApiCurl::Badge.list(request)
-when 'badge-create'
+when "badge-create"
   name = ARGV[1]
   badge_type_id = ARGV[2] || "2"
-  params = {
-    name: name,
-    badge_type_id: badge_type_id,
-  }
+  params = { name: name, badge_type_id: badge_type_id }
   DiscourseApiCurl::Badge.create(request, params)
-when 'badge-get'
+when "badge-get"
   id = ARGV[1]
   DiscourseApiCurl::Badge.get(request, id)
-when 'badge-update'
+when "badge-update"
   id = ARGV[1]
   name = ARGV[2]
   badge_type_id = ARGV[3] || "2"
-  params = {
-    name: name,
-    badge_type_id: badge_type_id,
-  }
+  params = { name: name, badge_type_id: badge_type_id }
   DiscourseApiCurl::Badge.update(request, id, params)
-when 'badge-delete'
+when "badge-delete"
   id = ARGV[1]
   DiscourseApiCurl::Badge.delete(request, id)
-when 'badge-get-award'
+when "badge-get-award"
   id = ARGV[1]
   DiscourseApiCurl::Badge.get_award(request, id)
-when 'embedding-add-host'
+when "embedding-add-host"
   host = ARGV[1]
   category_id = ARGV[2]
-  params = {
-    host: host,
-    category_id: category_id
-  }
+  params = { host: host, category_id: category_id }
   DiscourseApiCurl::Embedding.create(request, params)
-when 'rsspolling-get'
+when "rsspolling-get"
   DiscourseApiCurl::RSSPolling.get(request)
-when 'rsspolling-update'
+when "rsspolling-update"
   feed_settings_json = ARGV[1]
   path = "/admin/plugins/rss_polling/feed_settings.json"
 
@@ -1262,17 +1191,15 @@ when 'rsspolling-update'
   puts c
   puts
   puts `#{c}`
-when 'backups-list'
+when "backups-list"
   DiscourseApiCurl::Backup.list(request)
-when 'backups-create'
-  params = {
-    with_uploads: false
-  }
+when "backups-create"
+  params = { with_uploads: false }
   DiscourseApiCurl::Backup.create(request, params)
-when 'backups-send-email'
+when "backups-send-email"
   filename = ARGV[1]
   DiscourseApiCurl::Backup.send_download_email(request, filename)
-when 'download-backup'
+when "download-backup"
   backup = ARGV[1]
   token = ARGV[2]
 
@@ -1291,7 +1218,7 @@ when 'download-backup'
   #}
   #DiscourseApiCurl::Backup.download_backup(request, filename)
   #
-when 'routes'
+when "routes"
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/rails/info/routes" \
     -H "Content-Type: multipart/form-data;" \
@@ -1301,9 +1228,9 @@ when 'routes'
   puts c
   puts
   puts `#{c}`
-when 'site'
+when "site"
   DiscourseApiCurl::Site.get(request)
-when 'poll-presence'
+when "poll-presence"
   id = ARGV[1]
   path = "/message-bus/#{id}/poll/presence"
 
@@ -1316,7 +1243,7 @@ when 'poll-presence'
   puts c
   puts
   puts `#{c}`
-when 'reactions-users'
+when "reactions-users"
   post_id = ARGV[1] || 8
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/discourse-reactions/posts/#{post_id}/reactions-users.json" \
@@ -1327,12 +1254,13 @@ when 'reactions-users'
   puts c
   puts
   puts `#{c}`
-when 'reactions-toggle'
+when "reactions-toggle"
   post_id = ARGV[1]
   # #<Set: {"heart", "+1", "laughing", "open_mouth", "clap", "confetti_ball", "hugs"}>
-  reactions = ["heart", "+1", "laughing", "open_mouth", "clap", "confetti_ball", "hugs"]
-  reaction = ARGV[2] || reactions[rand(0..reactions.length-1)]
-  path = "/discourse-reactions/posts/#{post_id}/custom-reactions/#{reaction}/toggle.json"
+  reactions = %w[heart +1 laughing open_mouth clap confetti_ball hugs]
+  reaction = ARGV[2] || reactions[rand(0..reactions.length - 1)]
+  path =
+    "/discourse-reactions/posts/#{post_id}/custom-reactions/#{reaction}/toggle.json"
   c = <<~HERDOC
     curl -i -sS -X PUT "#{HOST}#{path}" \
     -H "Content-Type: multipart/form-data;" \
@@ -1342,7 +1270,7 @@ when 'reactions-toggle'
   puts c
   puts
   puts `#{c}`
-when 'reactions-users-no-auth'
+when "reactions-users-no-auth"
   post_id = ARGV[1] || 8
   c = <<~HERDOC
     curl -i -sS -X GET "#{HOST}/discourse-reactions/posts/#{post_id}/reactions-users.json"
@@ -1350,7 +1278,7 @@ when 'reactions-users-no-auth'
   puts c
   puts
   puts `#{c}`
-when 'session-csrf'
+when "session-csrf"
   c = <<~HERDOC
     curl -c cookies.txt -sS -X GET "#{HOST}/session/csrf" \
     -H "User-agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0" \
@@ -1361,16 +1289,18 @@ when 'session-csrf'
   response = `#{c}`
   puts response
   response_json = JSON.parse(response)
-  csrf_token = response_json['csrf']
+  csrf_token = response_json["csrf"]
   id = ARGV[1]
 
-  2.times.map do
-    Thread.new do
-      name = SecureRandom.hex[0..19]
-      username = name
-      email = "#{name}@example.com"
-      password = SecureRandom.hex
-      c = <<~HERDOC
+  2
+    .times
+    .map do
+      Thread.new do
+        name = SecureRandom.hex[0..19]
+        username = name
+        email = "#{name}@example.com"
+        password = SecureRandom.hex
+        c = <<~HERDOC
         curl -i -b cookies.txt -sS -X PUT "#{HOST}/invites/show/#{id}.json" \
         -H "Content-Type: multipart/form-data;" \
         -H "X-CSRF-Token: #{csrf_token}" \
@@ -1380,10 +1310,15 @@ when 'session-csrf'
         -F "password=#{password}" \
         -F "email=#{email}"
       HERDOC
-      puts c
-      puts
-      puts `#{c}`
+        puts c
+        puts
+        puts `#{c}`
+      end
     end
-  end.each(&:join)
-
+    .each(&:join)
+when "logs"
+  DiscourseApiCurl::Logs.list(request)
+when "logs-get"
+  id = "61e3efa7d4f15b4d11058a578a16d18f"
+  DiscourseApiCurl::Logs.get(request, id)
 end

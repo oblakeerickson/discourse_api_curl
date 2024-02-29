@@ -1,10 +1,18 @@
 require 'json'
 i = 0
 while i < 200
-  # create user
-  output = `ruby app.rb user-create`
-  sleep(1)
-  i = i + 1
+  n = 0
+  while n < 10
+    # create user
+    output = `discourse_api_curl user-create`
+    #sleep(1)
+    #print '.'
+    puts output
+    i = i + 1
+    n = n + 1
+  end
+  n = 0
+  sleep(7)
   #username = output.split("\n")[0]
   #username = username.split(":")[1].strip
   #puts username

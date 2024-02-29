@@ -34,5 +34,13 @@ module DiscourseApiCurl
       request = command.put("/invites/show/#{id}.json", params)
       command.exec(request)
     end
+
+    def self.by_email(command, args = {})
+      params = DiscourseApiCurl.params(args)
+        .required(:email)
+
+      request = command.post("/invites.json", params)
+      command.exec(request)
+    end
   end
 end
