@@ -37,6 +37,13 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.recover(command, id, args = {})
+      params = DiscourseApiCurl.params(args)
+        .optional(:force_destroy)
+      request = command.put("/posts/#{id}/recover.json", params)
+      command.exec(request)
+    end
+
     def self.update(command, id, args = {})
       params = DiscourseApiCurl.params(args)
         .required(:raw)

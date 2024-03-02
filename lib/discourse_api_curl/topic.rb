@@ -47,6 +47,11 @@ module DiscourseApiCurl
       command.exec(request)
     end
 
+    def self.recover(command, id)
+      request = command.put("/t/#{id}/recover.json")
+      command.exec(request)
+    end
+
     def self.get_last(command, id)
       request = command.get("/t/#{id}/last.json")
       command.exec(request)
